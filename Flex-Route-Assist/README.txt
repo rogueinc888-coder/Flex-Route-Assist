@@ -1,2 +1,7 @@
-Flex Route Assist PWA版
-Vercel公開用。ホーム画面追加でstandalone表示。
+Flex Route Assist clean UI update
+- hide empty-state card on map
+- remove follow status pill
+- remove zoom description pill
+- remove delivery count bar
+- current location moves only when the location button is pressed
+- refreshed app icon
