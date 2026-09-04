@@ -4,6 +4,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Flex Route Assist</title>
+<meta name="theme-color" content="#111418" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Flex Route" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <style>
@@ -98,6 +105,11 @@ function savePoint(type){alert(type+'位置を現在地として保存しまし�
 function previewPhoto(e){const f=e.target.files?.[0];if(!f)return;const img=document.getElementById('preview');img.src=URL.createObjectURL(f);img.style.display='block';}
 function addStopFromPhoto(){alert('確認した住所を配達リストに追加しました');openView('listView')}
 window.addEventListener('load',()=>{const v=localStorage.getItem('flexDetail');if(v){try{const d=JSON.parse(v);dropoff.checked=d.dropoff;locker.checked=d.locker;autolock.checked=d.autolock;memo.value=d.memo}catch{}}renderList()});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
 </script>
 </body>
 </html>

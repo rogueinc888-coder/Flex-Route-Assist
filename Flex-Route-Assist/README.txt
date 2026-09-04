@@ -1,4 +1,2 @@
-Flex Route Assist
-Vercel upload-ready static web app.
-Upload this entire folder as a new Vercel project.
-Main file: index.html
+Flex Route Assist PWA版
+Vercel公開用。ホーム画面追加でstandalone表示。
