@@ -23,19 +23,62 @@
 .backbar{position:sticky;top:0;z-index:30;margin:-18px -16px 14px;padding:10px 12px;background:rgba(244,246,248,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.backbtn{border:0;background:#fff;color:#111;border-radius:14px;padding:10px 14px;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.08)}
 @media(min-width:850px){.app{max-width:520px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,.2)}}
 
-/* v12: clean map view - hide next delivery card and delivery counters */
-#nextCard,#statusPill{display:none !important;}
+/* v13: reference-photo layout */
+.topbar{
+  height:78px;
+  padding:env(safe-area-inset-top) 18px 10px;
+  background:linear-gradient(180deg,#111417 0%,#090b0d 100%);
+  align-items:flex-end;
+  box-shadow:0 1px 0 rgba(255,255,255,.05);
+}
+.brand b{font-size:23px;font-weight:800;letter-spacing:-.3px}.brand span{font-size:13px;margin-top:5px}
+.iconbtn{width:46px;height:46px;font-size:30px;font-weight:300}
+#mainView{background:#ddd}
+#map{inset:0}
+.map-hud{
+  right:14px;
+  bottom:calc(138px + env(safe-area-inset-bottom));
+  gap:9px;
+}
+.map-hud button{
+  width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.98);
+  box-shadow:0 4px 14px rgba(0,0,0,.23);font-size:28px;color:#111;border:1px solid rgba(0,0,0,.06)
+}
+.bottomnav{
+  left:14px;right:14px;bottom:calc(10px + env(safe-area-inset-bottom));height:108px;
+  border-radius:22px;background:rgba(255,255,255,.985);
+  box-shadow:0 8px 26px rgba(0,0,0,.22);overflow:visible;padding:10px 8px;
+  gap:8px;border:1px solid rgba(0,0,0,.05)
+}
+.bottomnav button{
+  border:1px solid #e0e3e7;border-radius:14px;background:#fff;color:#111;
+  font-size:15px;font-weight:800;line-height:1.15
+}
+.bottomnav button span{font-size:30px;margin-bottom:6px;color:var(--orange)}
+.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-bottom-left{bottom:150px!important}
+
+
+/* v14: actual system layout matching the approved clean reference */
+.topbar{height:84px;padding:env(safe-area-inset-top) 18px 10px;align-items:flex-end}
+.top-actions{display:flex;align-items:center;gap:4px;min-width:96px;justify-content:flex-end}
+.top-mini{font-size:28px;line-height:1}.bell{font-size:27px}
+#mainView{position:relative;overflow:hidden}
+.map-hud{right:14px;bottom:calc(146px + env(safe-area-inset-bottom));gap:10px}
+.map-hud button{width:56px;height:56px;font-size:30px}
+.bottomnav{left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));height:112px;padding:12px 10px;border-radius:26px;gap:10px}
+.bottomnav button{font-size:16px;border-radius:15px}.bottomnav button span{font-size:31px}
+.maplibregl-ctrl-attrib{font-size:9px;opacity:.5}
+@media(max-width:390px){.brand b{font-size:21px}.top-actions{min-width:82px}.iconbtn{width:42px}.bottomnav{height:104px}.bottomnav button{font-size:14px}}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header class="topbar"><button class="iconbtn" onclick="openView('listView')">☰</button><div class="brand"><b>Flex Route Assist</b><span>本日の配達</span></div><button class="iconbtn" onclick="openSelectedDetail()">☷</button></header>
+<header class="topbar"><button class="iconbtn" aria-label="メニュー" onclick="openView('listView')">☰</button><div class="brand"><b>Flex Route Assist</b><span>本日の配達</span></div><div class="top-actions"><button class="iconbtn top-mini" aria-label="メッセージ" onclick="alert('メッセージ機能は後から接続できます')">▢</button><button class="iconbtn top-mini bell" aria-label="通知" onclick="alert('通知はありません')">♧</button></div></header>
 <section id="mainView" class="view active">
   <div id="map"></div>
-  <div class="next-card" id="nextCard" style="display:none"></div>
-  <div id="statusPill" class="status-pill" style="display:none"></div>
-  <div class="map-hud"><button onclick="zoomIn()">＋</button><button onclick="zoomOut()">−</button><button onclick="locateMe(true)">◎</button><button onclick="togglePitch()">◈</button></div>
-  <div class="bottomnav"><button onclick="optimizeRoute()"><span>⌖</span>最適ルート</button><button onclick="openView('photoView')"><span>▣</span>写真から住所</button><button onclick="openView('listView')"><span>☷</span>リスト</button></div>
+  <div class="map-hud"><button title="現在地" onclick="locateMe(true)">◎</button><button title="拡大" onclick="zoomIn()">＋</button><button title="縮小" onclick="zoomOut()">−</button><button title="レイヤー" onclick="togglePitch()">◆</button></div>
+  <div class="bottomnav"><button onclick="optimizeRoute()"><span>⌖</span>近い順</button><button onclick="openView('photoView')"><span>▣</span>写真から住所</button><button onclick="openView('listView')"><span>☷</span>リスト</button></div>
 </section>
 <section id="detailView" class="view screen"><div class="backbar"><button class="backbtn" onclick="goBack()">← 戻る</button></div><h2>配達先詳細</h2><div id="detailContent"></div></section>
 <section id="listView" class="view screen"><div class="backbar"><button class="backbtn" onclick="goBack()">← 戻る</button></div><h2>配達リスト</h2><input class="wide" id="searchBox" placeholder="住所・建物名で検索" oninput="renderList()" /><div class="toolbar"><button onclick="optimizeRoute()">最適ルート</button><button onclick="filterMode('all')">すべて</button><button onclick="filterMode('undelivered')">未配達</button><button onclick="filterMode('done')">完了</button></div><div id="stopList"></div></section>
@@ -48,7 +91,7 @@ let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let curre
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
 function saveStops(){localStorage.setItem(KEY,JSON.stringify(stops));updateAll()}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
-const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[139.6152,35.5063],zoom:18,pitch:0,bearing:0,antialias:true});
+const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[139.6152,35.5063],zoom:18.6,pitch:18,bearing:0,antialias:true});
 map.on('load',()=>{try{
   const style=map.getStyle();
   const srcId=Object.keys(style.sources).find(k=>style.sources[k].type==='vector');
@@ -57,7 +100,7 @@ map.on('load',()=>{try{
   if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':'#9e9a92'}});
   if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
 }catch(e){console.warn('building overlay',e)} drawMarkers(); startLocationWatch();});
-function makeUserMarker(){if(userMarker)return userMarker;const el=document.createElement('div');el.style.cssText='width:26px;height:26px;border-radius:50%;background:#1787ff;border:4px solid #fff;box-shadow:0 0 0 11px rgba(23,135,255,.25),0 4px 14px rgba(0,0,0,.35);';userMarker=new maplibregl.Marker({element:el,anchor:'center'});return userMarker}
+function makeUserMarker(){if(userMarker)return userMarker;const el=document.createElement('div');el.style.cssText='width:34px;height:34px;border-radius:50%;background:#1787ff;border:5px solid #fff;box-shadow:0 0 0 14px rgba(23,135,255,.23),0 5px 16px rgba(0,0,0,.35);position:relative;';const arrow=document.createElement('div');arrow.style.cssText='position:absolute;right:-12px;top:-11px;width:0;height:0;border-left:12px solid transparent;border-right:5px solid transparent;border-bottom:25px solid #1787ff;transform:rotate(45deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));';el.appendChild(arrow);userMarker=new maplibregl.Marker({element:el,anchor:'center'});return userMarker}
 function updateUserPosition(p,recenter=false){userPos={lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy};makeUserMarker().setLngLat([userPos.lng,userPos.lat]).addTo(map);if(recenter)map.easeTo({center:[userPos.lng,userPos.lat],zoom:18.4,duration:500})}
 function startLocationWatch(){if(!navigator.geolocation)return;if(watchId!==null)navigator.geolocation.clearWatch(watchId);navigator.geolocation.getCurrentPosition(p=>updateUserPosition(p,true),()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:10000});watchId=navigator.geolocation.watchPosition(p=>updateUserPosition(p,currentView==='mainView'),()=>{}, {enableHighAccuracy:true,maximumAge:1000,timeout:10000})}
 function locateMe(recenter){if(userPos){if(recenter)map.easeTo({center:[userPos.lng,userPos.lat],zoom:18.4,duration:500});return}navigator.geolocation?.getCurrentPosition(p=>updateUserPosition(p,recenter),()=>alert('現在地を取得できませんでした。iPhoneの位置情報を許可してください。'),{enableHighAccuracy:true})}
@@ -66,7 +109,7 @@ function drawMarkers(){clearMarkers();stops.forEach((s,i)=>{if(!Number.isFinite(
 function counts(){return{u:stops.filter(s=>s.status!=='done').length,d:stops.filter(s=>s.status==='done').length,t:stops.length}}
 function nextStop(){return stops.find(s=>s.status!=='done')||null}
 function renderStatus(){const el=document.getElementById('statusPill');if(!el)return;const c=counts();el.innerHTML=`未配達 <span class=\"u\">${c.u}</span>　/　完了 <span class=\"d\">${c.d}</span>　/　合計 ${c.t}`;el.style.display=c.t?'block':'none'}
-function updateAll(){renderNext();renderList();drawMarkers();renderStatus()}
+function updateAll(){renderList();drawMarkers()}
 function formatJapaneseAddress(addr){
   const raw=String(addr||'').trim();
   if(!raw)return '';
