@@ -161,6 +161,7 @@ body{background:#000}
 .sheet-handle{width:64px;height:6px;border-radius:999px;background:#9ba8af;margin:10px auto 8px;opacity:.9}
 .route-summary{padding:0 18px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-bottom:1px solid #26363e}
 .route-summary h3{margin:0 0 4px;font-size:16px}.route-summary .route-stats{font-size:26px;font-weight:900;letter-spacing:-.4px}.route-summary .route-time{font-size:15px;color:#b7c5cc;margin-top:2px}.route-summary .sheet-icon{width:52px;height:52px;border:2px solid #3dc6ff;border-radius:8px;display:grid;place-items:center;color:#53ceff;background:#06151d;font-size:25px}
+.sheet-map-open{appearance:none;-webkit-appearance:none;cursor:pointer;display:grid;place-items:center;border:2px solid #4cc7f3!important;background:#0b1820!important;color:#4cc7f3!important;font-size:26px!important;line-height:1;padding:0!important}
 .route-actions{display:grid;grid-template-columns:1fr 58px;gap:10px;padding:12px 18px 16px;background:#1b2a32}.route-actions button{height:54px;border:0;border-radius:8px;font-weight:800;font-size:18px}.route-preview-btn{background:#1fb6eb;color:#082333}.route-open-btn{background:#4cc7f3;color:#082333;font-size:25px!important}
 .package-info{padding:10px 18px 24px;overflow:auto;max-height:calc(76vh - 170px)}.package-card{border:1px solid #7f9098;border-radius:14px;padding:16px;margin:10px 0 16px;background:#02080d}.package-card h3{margin:0 0 12px;font-size:20px;line-height:1.35}.package-line{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #35444b}.package-line:last-child{border-bottom:0}.package-label{color:#aebdc5;font-size:13px}.package-value{font-weight:800;text-align:right}.package-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #93a4ad;border-radius:999px;padding:4px 9px;margin-top:6px;font-size:13px}
 .next-destination{margin:8px 0 0;padding:12px;border-radius:10px;background:#062230;border:1px solid #16485e}.next-destination small{display:block;color:#74d7ff;font-weight:800;margin-bottom:4px}
@@ -177,6 +178,42 @@ body{background:#000}
 /* v25 delivery operations */
 .quick-memos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quick-memos button{border:1px solid #cbd4db;background:#f5f7f9;border-radius:999px;padding:8px 11px;font-weight:750}.proof-photo{width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin-top:10px}.proof-upload{display:block;border:1px dashed #9eabb4;border-radius:14px;padding:14px;text-align:center;margin-top:10px;background:#f7f9fa}.redelivery-btn{display:inline-block;margin-top:7px;border:0;border-radius:10px;padding:7px 10px;background:#176f9e;color:#fff;font-weight:800}.settings-file{position:absolute;opacity:0;pointer-events:none}.admin-config{padding:12px 18px 28px;background:#02080d}.admin-config input{width:100%;height:46px;border-radius:11px;border:1px solid #2b5364;background:#07141b;color:#fff;padding:0 12px;margin:7px 0}.admin-config button{width:100%;height:46px;border:0;border-radius:11px;background:#15afe5;color:#06202b;font-weight:850;margin-top:8px}.perf-sub{font-size:12px;color:#9db0ba;margin-top:4px}.csv-help{font-size:12px;color:#9db0ba;padding:0 18px 14px;background:#02080d}.auto-next-toast{position:fixed;z-index:99;left:50%;bottom:26px;transform:translateX(-50%);background:#06202b;color:#fff;border:1px solid #2bbff1;border-radius:999px;padding:11px 16px;font-weight:800;box-shadow:0 8px 28px #0008;display:none}
 
+
+/* v26 compact fixed-map layout */
+html,body{width:100%;height:100%;overflow:hidden!important;overscroll-behavior:none;background:#02080d}
+body{position:fixed!important;inset:0!important;touch-action:none}
+.app{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important}
+.view{overflow:hidden!important}
+#mainView{overflow:hidden!important;touch-action:none}
+#map{touch-action:auto}
+.maplibregl-map,.maplibregl-canvas-container,.maplibregl-canvas{touch-action:none}
+.topbar{min-height:calc(58px + env(safe-area-inset-top))!important;height:calc(58px + env(safe-area-inset-top))!important;padding:env(safe-area-inset-top) 10px 6px!important}
+.brand b{font-size:19px!important}.brand span{font-size:11px!important;margin-top:2px!important}
+.topbar>.iconbtn{width:38px!important;height:38px!important;flex:0 0 38px!important;font-size:23px!important}
+.map-search-wrap{left:12px!important;right:62px!important;top:9px!important;gap:5px!important}
+.map-search{height:44px!important;border-radius:22px!important;font-size:14px!important;padding-left:42px!important}
+.map-search-icon{left:14px!important;top:8px!important;font-size:23px!important}
+.camera-float{top:9px!important;right:10px!important;width:44px!important;height:44px!important;border-radius:12px!important;font-size:21px!important}.camera-float small{font-size:10px!important}
+.map-hud{right:8px!important;bottom:calc(132px + env(safe-area-inset-bottom))!important;gap:4px!important}
+.map-hud button{width:40px!important;height:40px!important;font-size:19px!important;border-width:1px!important}
+.map-hud button small{font-size:7.5px!important;margin-top:1px!important;line-height:1!important}
+.route-sheet{border-radius:16px 16px 0 0!important;transform:translateY(calc(100% - 118px))!important;max-height:70%!important}
+.route-sheet.expanded{transform:translateY(0)!important}
+.sheet-handle{width:48px!important;height:4px!important;margin:6px auto 5px!important}
+.route-summary{padding:0 12px 8px!important;gap:8px!important}
+.route-summary h3{font-size:13px!important;margin-bottom:2px!important}.route-summary .route-stats{font-size:20px!important}.route-summary .route-time{font-size:12px!important}
+.route-summary .sheet-icon{width:40px!important;height:40px!important;font-size:19px!important}
+.route-actions{grid-template-columns:1fr 46px!important;gap:7px!important;padding:7px 12px 9px!important}
+.route-actions button{height:42px!important;font-size:14px!important}.route-open-btn{font-size:20px!important}
+.package-info{max-height:calc(70vh - 130px)!important;padding:8px 12px 18px!important;overscroll-behavior:contain}
+.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-bottom-left{bottom:0!important}
+@media(max-width:390px){
+ .topbar{min-height:calc(54px + env(safe-area-inset-top))!important;height:calc(54px + env(safe-area-inset-top))!important}
+ .brand b{font-size:18px!important}.brand span{font-size:10px!important}
+ .map-hud{bottom:calc(124px + env(safe-area-inset-bottom))!important}
+ .map-hud button{width:38px!important;height:38px!important;font-size:18px!important}
+ .route-sheet{transform:translateY(calc(100% - 110px))!important}
+}
 </style>
 </head>
 <body>
@@ -200,7 +237,7 @@ body{background:#000}
     <div id="sheetHandle" class="sheet-handle" onclick="toggleRouteSheet()"></div>
     <div class="route-summary" onclick="toggleRouteSheet()">
       <div><h3 id="routeSheetTitle">次の目的地</h3><div id="routeStats" class="route-stats">— 分・— km</div><div id="routeWindow" class="route-time">時間指定なし</div></div>
-      <div class="sheet-icon">▤</div>
+      <button type="button" class="sheet-icon sheet-map-open" aria-label="他の地図アプリで開く" title="他の地図アプリで開く" onclick="event.stopPropagation();openSelectedExternalMap()">↗</button>
     </div>
     <div id="packageInfo" class="package-info"></div>
     <div class="route-actions"><button class="route-preview-btn" onclick="previewShortestRoute()">ルートのプレビュー</button><button class="route-open-btn" onclick="openSelectedExternalMap()" aria-label="他の地図アプリで開く">↗</button></div>
@@ -279,7 +316,7 @@ body{background:#000}
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v25 Operations</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v27 External Maps</div>
   </div>
 </section>
 
@@ -455,11 +492,20 @@ function openExternalMapChooser(id){
 }
 function closeMapAppChooser(){document.getElementById('mapAppChooser')?.classList.remove('show')}
 function launchExternalMap(kind){
-  const s=stops.find(x=>x.id===selectedId);if(!s){closeMapAppChooser();return}
-  const q=encodeURIComponent(s.address+(s.name?' '+s.name:''));
+  const s=stops.find(x=>x.id===selectedId);
+  if(!s){closeMapAppChooser();alert('配達先を先に登録してください');return}
+  const destination=[s.address,s.name].filter(Boolean).join(' ').trim();
+  if(!destination){closeMapAppChooser();alert('目的地の住所がありません');return}
+  const q=encodeURIComponent(destination);
   closeMapAppChooser();
-  if(kind==='apple') location.href=`https://maps.apple.com/?daddr=${q}&dirflg=d`;
-  else location.href=`https://www.google.com/maps/dir/?api=1&destination=${q}`;
+  // 住所を目的地として渡した状態で外部地図アプリを開く。
+  // iPhoneではApple MapsのUniversal Link、Google Mapsはインストール済みならアプリへ、
+  // 未インストールならGoogle MapsのWeb版へ移動する。
+  if(kind==='apple'){
+    window.location.href=`https://maps.apple.com/?daddr=${q}&dirflg=d`;
+  }else{
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=driving`;
+  }
 }
 function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,duration:500})}
 function hav(a,b){const R=6371,toR=x=>x*Math.PI/180,dLat=toR(b.lat-a.lat),dLng=toR(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
