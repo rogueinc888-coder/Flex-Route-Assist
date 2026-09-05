@@ -91,25 +91,208 @@
   .topbar>.iconbtn{flex-basis:42px}
 }
 
+
+/* v20: delivery workflow UI inspired by the supplied reference screenshots */
+.map-search-wrap{position:absolute;z-index:14;left:16px;right:16px;top:14px;display:flex;align-items:center;gap:8px}
+.map-search{height:54px;flex:1;border:0;border-radius:28px;background:rgba(255,255,255,.98);box-shadow:0 5px 18px rgba(0,0,0,.18);padding:0 18px 0 48px;font-size:16px;color:#233b5f;outline:none}
+.map-search-icon{position:absolute;left:17px;top:13px;font-size:27px;color:#233b5f;pointer-events:none}
+.camera-float{position:absolute;z-index:14;right:18px;top:82px;width:58px;height:58px;border:0;border-radius:50%;background:#fff;color:#233b5f;box-shadow:0 5px 18px rgba(0,0,0,.2);font-size:27px;font-weight:800}
+.camera-float small{font-size:14px;position:absolute;right:6px;bottom:5px;background:#fff;border-radius:50%}
+.heading-float{position:absolute;z-index:14;left:22px;bottom:calc(143px + env(safe-area-inset-bottom));width:56px;height:56px;border:0;border-radius:50%;background:#fff;box-shadow:0 5px 18px rgba(0,0,0,.22);font-size:31px;font-weight:700}
+.map-hud{bottom:calc(150px + env(safe-area-inset-bottom))!important}
+.bottomnav{grid-template-columns:repeat(2,1fr)!important;height:104px!important}
+.bottomnav button{font-size:17px!important}
+#mainView .maplibregl-ctrl-attrib{bottom:0!important}
+
+.ref-screen{padding:0 0 calc(24px + env(safe-area-inset-bottom));overflow:auto;background:#fff;color:#102a50}
+.ref-head{height:88px;padding:calc(env(safe-area-inset-top) + 10px) 20px 10px;display:grid;grid-template-columns:52px 1fr 52px;align-items:end;background:#fff;position:sticky;top:0;z-index:20}
+.ref-head h2{margin:0;text-align:center;font-size:23px;color:#102a50}.ref-x,.ref-more,.ref-help{border:0;background:transparent;font-size:34px;color:#536987}.ref-more{font-size:30px}.ref-help{font-size:28px}
+.list-meta{padding:12px 18px 0}.date-pill{display:inline-flex;gap:7px;align-items:center;border:1px solid #d6dce4;border-radius:18px;padding:7px 11px;font-size:14px;color:#526987}
+.list-tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #e2e7ed}.list-tab{border:0;background:#fff;padding:14px 4px;font-size:20px;color:#7c8ca3;position:relative}.list-tab.active{color:#31b9eb;font-weight:800}.list-tab.active:after{content:'';position:absolute;left:7%;right:7%;bottom:-1px;height:4px;background:linear-gradient(90deg,#55c7db,#377fe7)}
+.time-filter{background:#eef8fc;padding:14px 26px 20px}.time-labels{display:flex;justify-content:space-between;font-size:13px;color:#0d2345;margin-bottom:8px}.time-line{height:8px;border-radius:6px;background:linear-gradient(90deg,#ef5a91,#ffe65f,#ccf45a,#68cf66,#83a9f5,#9a62dd);position:relative}.time-dot{position:absolute;top:50%;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.16);transform:translate(-50%,-50%)}.time-dot.left{left:0}.time-dot.right{left:100%}
+.ref-list-body{padding:14px 18px 90px}.empty-package{min-height:500px;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#71839e;text-align:center;font-size:18px;line-height:1.6}.empty-package .boxicon{font-size:62px;opacity:.55;margin-bottom:18px}.sort-float{position:fixed;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));border:2px solid #47bfe9;border-radius:25px;background:#fff;color:#38b6e8;padding:10px 22px;font-weight:800;font-size:16px;z-index:30}
+.ref-stop{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:15px 4px;border-bottom:1px solid #e5e9ee}.ref-stop .num{background:#19385f}.ref-stop h3{margin:0 0 5px;font-size:17px;color:#102a50}.ref-stop p{margin:0;color:#6c7e96;font-size:14px}.status-small{font-size:12px;color:#6d809a;text-align:right}.status-small button{display:block;margin-top:6px;border:0;border-radius:10px;padding:6px 9px;background:#fff0ef;color:#cf453d;font-weight:700}
+
+.search-ref{background:#fff}.search-top{padding:calc(env(safe-area-inset-top) + 18px) 18px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #dfe5eb}.search-back{border:0;background:transparent;font-size:36px;color:#647b98}.search-field{position:relative;flex:1}.search-field input{width:100%;height:50px;border:0;border-radius:24px;background:#eef7fb;padding:0 52px 0 18px;font-size:17px;color:#19385f;outline:none}.search-submit{position:absolute;right:6px;top:5px;width:40px;height:40px;border:0;background:transparent;font-size:25px;color:#19385f}.section-title{padding:24px 32px 10px;background:#eef7fb;color:#6d829e;font-size:17px}.address-row{display:grid;grid-template-columns:42px 1fr 28px;align-items:center;padding:16px 32px;border-bottom:1px solid #e3e7ec;font-size:18px;color:#0b2c57;gap:8px}.address-row button{border:0;background:transparent;text-align:left;font-size:18px;color:#0b2c57;padding:0}.address-row .chev{color:#c5cdd8;font-size:28px}.history-empty{padding:28px 32px;color:#8492a5}
+
+.photo-ref{background:#fff;color:#102a50}.photo-camera{position:relative;height:380px;background:#222;overflow:hidden}.photo-camera .camera-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;background:linear-gradient(135deg,#4a5660,#111)}.photo-camera img{width:100%;height:100%;object-fit:cover;display:none}.scan-frame{position:absolute;left:5%;right:5%;top:22%;height:48%;border:3px solid #ff2a24;pointer-events:none}.camera-select{position:absolute;inset:0;opacity:0;cursor:pointer}.camera-tools{position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:80px;color:#fff;font-size:17px}.toggle{width:62px;height:34px;border-radius:18px;background:#0cc0e8;display:inline-block;vertical-align:middle;position:relative}.toggle:after{content:'';position:absolute;width:28px;height:28px;right:3px;top:3px;background:#fff;border-radius:50%}
+.photo-form{padding:18px 28px 30px}.photo-form label{font-size:16px}.photo-form textarea,.photo-form input[type=text]{width:100%;margin-top:8px;border:1px solid #d2d9e2;border-radius:8px;padding:13px;font-size:16px}.slots{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;border:1px solid #d5dbe3;border-radius:10px;overflow:hidden}.slot{border:0;border-right:1px solid #d5dbe3;border-bottom:1px solid #d5dbe3;background:#fff;padding:14px 4px;color:#526985;font-weight:700}.slot.active{background:#10b5e7;color:#fff}.photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.photo-actions button{padding:14px;border:0;border-radius:12px;font-weight:800}.photo-actions .scan{background:#132d50;color:#fff}.photo-actions .register{background:#10b5e7;color:#fff}
+@media(max-width:390px){.map-search{font-size:14px}.camera-float{top:78px}.ref-head h2{font-size:21px}.list-tab{font-size:18px}.slots{grid-template-columns:repeat(2,1fr)}}
+
+
+
+/* v21: dark delivery UI + compact map controls */
+:root{--navy:#06384a;--navy2:#021b26;--ink:#02080d;--cyan:#38bdf8;--cyan2:#11a9e6;--line:#29414c}
+body{background:#000}
+.topbar{background:linear-gradient(180deg,#07556e,#063e53)!important;color:#fff;border:0!important;box-shadow:none!important}
+.topbar .brand b{font-weight:850}.topbar .brand span{opacity:.82}
+.top-actions{display:none!important}
+.topbar>.iconbtn{border-radius:50%;background:rgba(0,0,0,.20);border:1px solid rgba(67,194,255,.35);font-size:26px!important}
+#mainView{background:#071118}
+.map-search-wrap{top:12px;right:80px!important}.map-search{background:rgba(3,13,19,.94);color:#fff;border:1px solid rgba(104,201,242,.28);box-shadow:0 4px 18px rgba(0,0,0,.35)}.map-search::placeholder{color:#aebbc2}.map-search-icon{color:#fff}
+.camera-float{top:12px!important;right:14px!important;width:56px!important;height:54px!important;border-radius:15px!important;background:rgba(3,13,19,.94)!important;color:#fff!important;border:1px solid rgba(104,201,242,.28)!important;box-shadow:0 4px 18px rgba(0,0,0,.35)!important}
+.heading-float{display:none!important}
+.map-hud{right:12px!important;bottom:calc(184px + env(safe-area-inset-bottom))!important;gap:7px!important;z-index:18!important}
+.map-hud button{width:52px!important;height:52px!important;border-radius:50%!important;background:rgba(2,12,18,.92)!important;color:#fff!important;border:1px solid rgba(94,203,248,.45)!important;box-shadow:0 4px 14px rgba(0,0,0,.4)!important;font-size:24px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.map-hud button small{display:block;font-size:10px;font-weight:700;margin-top:2px;color:#c9f2ff}
+.map-hud .accent{border-color:#43c9ff!important;color:#43c9ff!important}
+.bottomnav{display:none!important}
+.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-bottom-left{bottom:2px!important}
+
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:70;display:none}.drawer-backdrop.open{display:block}
+.drawer{position:fixed;z-index:71;left:0;top:0;bottom:0;width:min(86vw,390px);transform:translateX(-105%);transition:transform .2s ease;background:#02090e;color:#fff;box-shadow:18px 0 40px rgba(0,0,0,.35);padding-top:env(safe-area-inset-top);overflow:auto}.drawer.open{transform:translateX(0)}
+.drawer-head{height:92px;background:linear-gradient(180deg,#07556e,#06445b);display:flex;align-items:center;gap:14px;padding:20px 18px}.drawer-close{width:42px;height:42px;border:0;background:transparent;color:#fff;font-size:34px}.drawer-title{font-size:21px;font-weight:850}.drawer-sub{font-size:12px;color:#b9eaff;margin-top:3px}
+.drawer-menu{padding:10px 0}.drawer-item{width:100%;display:grid;grid-template-columns:40px 1fr;align-items:center;text-align:left;padding:17px 24px;border:0;border-bottom:1px solid #26343b;background:#02090e;color:#fff;font-size:18px}.drawer-item .mi{color:#40c5ff;font-size:22px;text-align:center}.drawer-item:last-child{border-bottom:0}.drawer-foot{height:1px;background:#40515a;margin:8px 22px}
+
+.dark-screen{background:#02080d!important;color:#fff!important;overflow:auto;padding:0 0 calc(28px + env(safe-area-inset-bottom))}.dark-head{padding:calc(env(safe-area-inset-top) + 12px) 18px 12px;background:linear-gradient(180deg,#07556e,#06445b);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;position:sticky;top:0;z-index:21}.dark-head h2{margin:0;text-align:center;font-size:22px}.dark-head button{border:0;background:transparent;color:#fff;font-size:28px}.segment{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#06445b;padding:10px 18px 16px}.segment button{height:52px;border:0;border-radius:15px;background:#03131d;color:#fff;font-weight:800}.segment button.active{background:#a9ddff;color:#0d2938}
+.summary-wrap{padding:26px 22px}.summary-wrap h2{font-size:27px;margin:4px 0 26px}.progress-card{border-bottom:1px solid #4c5960;padding:0 0 24px;margin-bottom:24px}.progress-row{display:flex;align-items:center;gap:22px}.ring{width:126px;height:126px;border-radius:50%;background:conic-gradient(#22aff0 var(--progress,0%),#52636c 0);position:relative;display:grid;place-items:center}.ring:before{content:'';position:absolute;inset:13px;border-radius:50%;background:#02080d}.ring strong{position:relative;font-size:30px}.big-stat{font-size:20px}.big-stat b{display:block;font-size:35px}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.metric{background:linear-gradient(180deg,#063246,#031a26);border:1px solid #17485e;border-radius:12px;text-align:center;padding:16px 8px}.metric span{display:block;font-size:12px;color:#c2d5de}.metric b{font-size:26px}.summary-row{display:flex;justify-content:space-between;gap:12px;padding:16px 2px;border-bottom:1px solid #2a3a42;font-size:17px}.notice{margin-top:22px;background:#052431;border-radius:14px;padding:16px}.notice b{display:block;margin-bottom:10px}.notice p{font-size:14px;margin:0;color:#cad7de}
+
+/* dark delivery list */
+.ref-screen{background:#02080d!important;color:#fff!important}.ref-head{background:linear-gradient(180deg,#07556e,#06445b)!important}.ref-head h2,.ref-x,.ref-more,.ref-help{color:#fff!important}.list-meta{background:#02080d}.date-pill{border-color:#39515d;color:#c7dae4;background:#06151c}.list-tabs{background:#06445b;border-bottom-color:#1d5266}.list-tab{background:#03131d!important;color:#fff!important;border-radius:12px;margin:8px 5px 12px;padding:12px 4px!important}.list-tab.active{background:#a9ddff!important;color:#092b3a!important}.list-tab.active:after{display:none}.time-filter{background:#111b21!important}.ref-list-body{background:#02080d}.empty-package{color:#97aab4}.ref-stop{border-bottom-color:#314047}.ref-stop h3{color:#fff}.ref-stop p,.status-small{color:#b6c5cc}.ref-stop .num{background:#1d92c7}.sort-float{background:#0b2c3a;color:#5dd6ff;border-color:#38bdf8}
+
+/* dark search + photo screens to match the new system */
+.search-ref,.photo-ref{background:#02080d!important;color:#fff!important}.search-top{background:#06445b;border-bottom-color:#1d5266}.search-back{color:#fff}.search-field input{background:#03131d;color:#fff;border:1px solid #2a5f72}.search-field input::placeholder{color:#a9bac2}.search-submit{color:#65d7ff}.section-title{background:#07141b;color:#9db2bd}.address-row{border-bottom-color:#26353c;color:#fff}.address-row button{color:#fff}.photo-form{background:#02080d}.photo-form textarea,.photo-form input[type=text]{background:#07141b;color:#fff;border-color:#3a4e58}.slot{background:#07141b;color:#d8e4ea;border-color:#394850}.slot.active{background:#19afe4}.photo-actions .scan{background:#0b3445}.photo-actions .register{background:#12afe5}
+@media(max-width:390px){.map-hud button{width:48px!important;height:48px!important}.map-hud button small{font-size:9px}.map-search-wrap{right:74px!important}.metric b{font-size:22px}}
+
+
+/* v22: route preview + draggable package sheet */
+.route-sheet{position:absolute;z-index:16;left:0;right:0;bottom:0;background:#02080d;color:#fff;border-radius:22px 22px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.35);transform:translateY(calc(100% - 174px));transition:transform .28s ease;max-height:76%;overflow:hidden;touch-action:none}
+.route-sheet.expanded{transform:translateY(0)}
+.sheet-handle{width:64px;height:6px;border-radius:999px;background:#9ba8af;margin:10px auto 8px;opacity:.9}
+.route-summary{padding:0 18px 14px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;border-bottom:1px solid #26363e}
+.route-summary h3{margin:0 0 4px;font-size:16px}.route-summary .route-stats{font-size:26px;font-weight:900;letter-spacing:-.4px}.route-summary .route-time{font-size:15px;color:#b7c5cc;margin-top:2px}.route-summary .sheet-icon{width:52px;height:52px;border:2px solid #3dc6ff;border-radius:8px;display:grid;place-items:center;color:#53ceff;background:#06151d;font-size:25px}
+.route-actions{display:grid;grid-template-columns:1fr 58px;gap:10px;padding:12px 18px 16px;background:#1b2a32}.route-actions button{height:54px;border:0;border-radius:8px;font-weight:800;font-size:18px}.route-preview-btn{background:#1fb6eb;color:#082333}.route-open-btn{background:#4cc7f3;color:#082333;font-size:25px!important}
+.package-info{padding:10px 18px 24px;overflow:auto;max-height:calc(76vh - 170px)}.package-card{border:1px solid #7f9098;border-radius:14px;padding:16px;margin:10px 0 16px;background:#02080d}.package-card h3{margin:0 0 12px;font-size:20px;line-height:1.35}.package-line{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #35444b}.package-line:last-child{border-bottom:0}.package-label{color:#aebdc5;font-size:13px}.package-value{font-weight:800;text-align:right}.package-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #93a4ad;border-radius:999px;padding:4px 9px;margin-top:6px;font-size:13px}
+.next-destination{margin:8px 0 0;padding:12px;border-radius:10px;background:#062230;border:1px solid #16485e}.next-destination small{display:block;color:#74d7ff;font-weight:800;margin-bottom:4px}
+#mainView.route-open .map-hud{opacity:.35;pointer-events:none}
+.map-app-chooser{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.58);padding:24px}.map-app-chooser.show{display:flex}.map-app-dialog{width:min(92vw,360px);background:#1d252b;border:1px solid #41505a;border-radius:28px;padding:22px;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.45)}.map-app-dialog h3{margin:0 0 18px;text-align:center;font-size:22px}.map-app-dialog button{width:100%;height:58px;border:0;border-radius:18px;background:#39434a;color:#fff;font-size:19px;font-weight:800;margin-top:12px}.map-app-dialog button.cancel{background:#2d353a;color:#eef3f6}
+@media(max-width:390px){.route-sheet{transform:translateY(calc(100% - 164px))}.route-summary .route-stats{font-size:23px}.route-actions button{font-size:16px}}
+
+
+/* v24 complete system */
+.head-spacer{width:44px;display:block}.manual-address-box{padding:16px 24px;background:#02080d}.manual-address-box input{width:100%;height:48px;margin-bottom:10px;border-radius:12px;border:1px solid #2b5364;background:#07141b;color:#fff;padding:0 14px;font-size:16px}.manual-address-box button{width:100%;height:48px;border:0;border-radius:12px;background:#15afe5;color:#06202b;font-weight:850}.compact-input{width:90px;height:42px;border:1px solid #d3d9df;border-radius:10px;padding:0 10px}.status-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.status-actions button{height:46px;border:1px solid #cbd4db;border-radius:11px;background:#f2f5f7;font-weight:800}.status-actions .done{background:#17a761;color:#fff;border-color:#17a761}.perf-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 18px;background:#06445b}.perf-tabs button{height:42px;border:0;border-radius:12px;background:#03131d;color:#fff;font-weight:800}.perf-tabs button.active{background:#a9ddff;color:#082c3c}.perf-grid{grid-template-columns:repeat(2,1fr)}.settings-list{padding:12px 18px 40px}.settings-list button{width:100%;display:grid;grid-template-columns:40px 1fr 20px;gap:10px;align-items:center;text-align:left;padding:16px 12px;border:0;border-bottom:1px solid #2a3a42;background:#02080d;color:#fff}.settings-list button>span{font-size:23px;color:#47c8ff}.settings-list button b{display:block;font-size:16px}.settings-list button small{display:block;color:#9db0ba;margin-top:4px}.settings-list button i{font-style:normal;color:#7b919c;font-size:28px}.settings-list .danger-setting b{color:#ff8585}.photo-options{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}.photo-options label{display:flex;align-items:center;gap:8px}.photo-options input{width:22px;height:22px;accent-color:#18afe5}.app-version{text-align:center;color:#71858f;padding:24px 0 0;font-size:12px}
+#detailView{background:#071118;color:#111}#detailView .panel{box-shadow:none;border:1px solid #d8e0e6}
+
+
+/* v25 delivery operations */
+.quick-memos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quick-memos button{border:1px solid #cbd4db;background:#f5f7f9;border-radius:999px;padding:8px 11px;font-weight:750}.proof-photo{width:100%;max-height:240px;object-fit:cover;border-radius:14px;margin-top:10px}.proof-upload{display:block;border:1px dashed #9eabb4;border-radius:14px;padding:14px;text-align:center;margin-top:10px;background:#f7f9fa}.redelivery-btn{display:inline-block;margin-top:7px;border:0;border-radius:10px;padding:7px 10px;background:#176f9e;color:#fff;font-weight:800}.settings-file{position:absolute;opacity:0;pointer-events:none}.admin-config{padding:12px 18px 28px;background:#02080d}.admin-config input{width:100%;height:46px;border-radius:11px;border:1px solid #2b5364;background:#07141b;color:#fff;padding:0 12px;margin:7px 0}.admin-config button{width:100%;height:46px;border:0;border-radius:11px;background:#15afe5;color:#06202b;font-weight:850;margin-top:8px}.perf-sub{font-size:12px;color:#9db0ba;margin-top:4px}.csv-help{font-size:12px;color:#9db0ba;padding:0 18px 14px;background:#02080d}.auto-next-toast{position:fixed;z-index:99;left:50%;bottom:26px;transform:translateX(-50%);background:#06202b;color:#fff;border:1px solid #2bbff1;border-radius:999px;padding:11px 16px;font-weight:800;box-shadow:0 8px 28px #0008;display:none}
+
 </style>
 </head>
 <body>
 <div class="app">
-<header class="topbar"><button class="iconbtn" aria-label="メニュー" onclick="openView('listView')">☰</button><div class="brand"><b>Flex Route Assist</b><span>本日の配達</span></div><div class="top-actions"><button class="iconbtn top-mini" aria-label="メッセージ" onclick="alert('メッセージ機能は後から接続できます')">▢</button><button class="iconbtn top-mini bell" aria-label="通知" onclick="alert('通知はありません')">♧</button></div></header>
+<header class="topbar"><button class="iconbtn" aria-label="メニュー" onclick="openDrawer()">☰</button><div class="brand"><b>Flex Route Assist</b><span>本日の配達</span></div><div style="width:46px"></div></header>
 <section id="mainView" class="view active">
   <div id="map"></div>
-  <div class="map-hud"><button title="現在地" onclick="locateMe(true)">◎</button><button title="拡大" onclick="zoomIn()">＋</button><button title="縮小" onclick="zoomOut()">−</button><button title="レイヤー" onclick="togglePitch()">◆</button></div>
-  <div class="bottomnav"><button onclick="optimizeRoute()"><span>⌖</span>近い順</button><button onclick="openView('photoView')"><span>▣</span>写真から住所</button><button onclick="openView('listView')"><span>☷</span>リスト</button></div>
+  <div class="map-search-wrap"><span class="map-search-icon">⌕</span><input id="mainAddressSearch" class="map-search" placeholder="郵便番号(7桁) / 住所で探す" enterkeyhint="search" onfocus="openView('searchView')" readonly></div>
+  <button class="camera-float" aria-label="伝票を撮影" onclick="openView('photoView')">📷<small>＋</small></button>
+  <div class="map-hud">
+    <button title="現在地" onclick="locateMe(true)">◎<small>現在地</small></button>
+    <button id="headingModeBtn" title="進行方向の表示位置を切替" onclick="cycleHeadingAnchor()">↑<small>進行方向</small></button>
+    <button title="拡大" onclick="zoomIn()">＋<small>拡大</small></button>
+    <button title="縮小" onclick="zoomOut()">−<small>縮小</small></button>
+    <button title="レイヤー" onclick="togglePitch()">◆<small>地図</small></button>
+    <button class="accent" title="近い順" onclick="optimizeRoute()">⇄<small>近い順</small></button>
+    <button class="accent" title="リスト" onclick="openView('listView')">☷<small>リスト</small></button>
+  </div>
+
+  <div id="routeSheet" class="route-sheet" aria-label="ルートと荷物情報">
+    <div id="sheetHandle" class="sheet-handle" onclick="toggleRouteSheet()"></div>
+    <div class="route-summary" onclick="toggleRouteSheet()">
+      <div><h3 id="routeSheetTitle">次の目的地</h3><div id="routeStats" class="route-stats">— 分・— km</div><div id="routeWindow" class="route-time">時間指定なし</div></div>
+      <div class="sheet-icon">▤</div>
+    </div>
+    <div id="packageInfo" class="package-info"></div>
+    <div class="route-actions"><button class="route-preview-btn" onclick="previewShortestRoute()">ルートのプレビュー</button><button class="route-open-btn" onclick="openSelectedExternalMap()" aria-label="他の地図アプリで開く">↗</button></div>
+  </div>
 </section>
+
+<div id="drawerBackdrop" class="drawer-backdrop" onclick="closeDrawer()"></div>
+<aside id="drawer" class="drawer" aria-hidden="true">
+  <div class="drawer-head"><button class="drawer-close" onclick="closeDrawer()">×</button><div><div class="drawer-title">Flex Route Assist</div><div class="drawer-sub">配達メニュー</div></div></div>
+  <div class="drawer-menu">
+    <button class="drawer-item" onclick="drawerGo('overviewView')"><span class="mi">⌂</span><span>ホーム（概要）</span></button>
+    <button class="drawer-item" onclick="drawerGo('mainView')"><span class="mi">⌖</span><span>現在の目的地</span></button>
+    <button class="drawer-item" onclick="drawerGo('listView')"><span class="mi">☷</span><span>今日のルート</span></button>
+    <button class="drawer-item" onclick="drawerGo('photoView')"><span class="mi">▣</span><span>集荷・荷物登録</span></button>
+    <button class="drawer-item" onclick="drawerGo('performanceView')"><span class="mi">▥</span><span>パフォーマンス</span></button>
+    <div class="drawer-foot"></div>
+    <button class="drawer-item" onclick="drawerGo('settingsView')"><span class="mi">⚙</span><span>設定</span></button>
+  </div>
+</aside>
+<section id="overviewView" class="view dark-screen">
+  <div class="dark-head"><button onclick="openDrawer()">☰</button><h2>配達プラン概要</h2><button onclick="openView('mainView')">⌖</button></div>
+  <div class="segment"><button class="active">概要</button><button onclick="openView('listView')">配達</button></div>
+  <div class="summary-wrap">
+    <h2>本日の進捗</h2>
+    <div class="progress-card">
+      <div class="progress-row"><div id="progressRing" class="ring"><strong id="progressPct">0%</strong></div><div class="big-stat">完了<b><span id="overviewDone">0</span> / <span id="overviewTotal">0</span></b></div></div>
+      <div class="metric-grid"><div class="metric"><span>残りの配達</span><b id="overviewRemain">0</b></div><div class="metric"><span>訪問先</span><b id="overviewStops">0</b></div><div class="metric"><span>荷物</span><b id="overviewPackages">0</b></div></div>
+    </div>
+    <div class="summary-row"><span>現在のルート</span><button class="backbtn" onclick="openView('listView')">表示 ›</button></div>
+    <div class="summary-row"><span>エリア</span><span id="overviewArea">現在地周辺</span></div>
+    <div class="notice"><b>お知らせ</b><p id="overviewNotice">配達先を登録すると、ここに進捗が表示されます。</p></div>
+  </div>
+</section>
+
 <section id="detailView" class="view screen"><div class="backbar"><button class="backbtn" onclick="goBack()">← 戻る</button></div><h2>配達先詳細</h2><div id="detailContent"></div></section>
-<section id="listView" class="view screen"><div class="backbar"><button class="backbtn" onclick="goBack()">← 戻る</button></div><h2>配達リスト</h2><input class="wide" id="searchBox" placeholder="住所・建物名で検索" oninput="renderList()" /><div class="toolbar"><button onclick="optimizeRoute()">最適ルート</button><button onclick="filterMode('all')">すべて</button><button onclick="filterMode('undelivered')">未配達</button><button onclick="filterMode('done')">完了</button></div><div id="stopList"></div></section>
-<section id="photoView" class="view screen"><div class="backbar"><button class="backbtn" onclick="goBack()">← 戻る</button></div><h2>写真から住所追加</h2><div class="photo-box"><b>伝票・住所ラベルを撮影</b><div class="small">読み取り後に必ず確認・修正してから登録します。</div><input id="photoInput" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)"><img id="preview" class="preview" alt="preview"><button id="ocrBtn" class="ocrbtn" onclick="runOCR()">写真から文字を読み取る</button></div><div class="panel ocr-result"><b>住所（確認・修正）</b><input id="ocrAddress" class="wide" placeholder="例：神奈川県横浜市港北区新横浜2丁目3番8号"><div class="confidence" id="ocrStatus">写真を選択後、「文字を読み取る」を押してください。</div></div><div class="panel"><b>建物名・部屋番号</b><input id="ocrBuilding" class="wide" placeholder="例：○○マンション 102"><b style="display:block;margin-top:12px">メモ</b><textarea id="ocrMemo" class="wide" rows="3" placeholder="置き配場所、入口など"></textarea><div class="row"><label class="check"><input id="ocrDropoff" type="checkbox">置き配</label></div><div class="row"><label class="check"><input id="ocrLocker" type="checkbox">宅配BOXあり</label></div><div class="row"><label class="check"><input id="ocrAutolock" type="checkbox">オートロックあり</label></div></div><button class="primary" style="width:100%" onclick="addStopFromPhoto()">確認した内容で登録</button></section>
+<section id="listView" class="view ref-screen">
+  <div class="ref-head"><button class="ref-x" onclick="openView('mainView',false)">×</button><h2>今日のルート</h2><span class="head-spacer"></span></div>
+  <div class="list-meta"><span class="date-pill">▣ <span id="listUpdated">更新日時</span></span></div>
+  <div class="list-tabs"><button id="tabUndelivered" class="list-tab active" onclick="setListMode('undelivered')">配達 <span id="countUndelivered">0件</span></button><button id="tabAbsent" class="list-tab" onclick="setListMode('absent')">不在 <span id="countAbsent">0件</span></button><button id="tabDone" class="list-tab" onclick="setListMode('done')">完了 <span id="countDone">0件</span></button></div>
+  <div class="time-filter"><div class="time-labels"><span>AM</span><span>12</span><span>14</span><span>16</span><span>18</span><span>19</span><span>20</span><span>21</span></div><div class="time-line"><span class="time-dot left"></span><span class="time-dot right"></span></div></div>
+  <div id="stopList" class="ref-list-body"></div>
+  <button class="sort-float" onclick="optimizeRoute()">⇅ 住所順</button>
+</section>
+<section id="searchView" class="view search-ref">
+  <div class="search-top"><button class="search-back" onclick="goBack()">‹</button><div class="search-field"><input id="addressSearchInput" placeholder="郵便番号(7桁)/住所で探す" enterkeyhint="search" onkeydown="if(event.key==='Enter')searchAddressAndAdd()"><button class="search-submit" onclick="searchAddressAndAdd()">〒</button></div></div>
+  <div class="section-title">現在地</div><div class="address-row"><span>➤</span><button id="currentAddressRow" onclick="useCurrentLocationAddress()">現在地を取得</button><span class="chev">›</span></div>
+  <div class="section-title">住所を手入力</div><div class="manual-address-box"><input id="manualAddress" placeholder="例：神奈川県平塚市中堂11-10"><input id="manualBuilding" placeholder="建物名・部屋番号（任意）"><button onclick="addManualAddress()">この住所を登録</button></div>
+  <div class="section-title">お気に入り住所</div><div id="favoriteAddressRows"></div>
+  <div class="section-title">検索履歴</div><div id="historyRows"></div>
+</section>
+<section id="photoView" class="view photo-ref">
+  <div class="ref-head"><button class="ref-x" onclick="goBack()">×</button><h2>伝票読み取り</h2><span class="head-spacer"></span></div>
+  <div class="photo-camera"><div class="camera-placeholder">タップして伝票を撮影</div><img id="preview" alt="preview"><div class="scan-frame"></div><div class="camera-tools"><span>⚡︎</span><span>連続撮影 <span class="toggle"></span></span></div><input id="photoInput" class="camera-select" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)"></div>
+  <div class="photo-form"><label>荷物個数</label><input id="ocrPackageCount" type="number" min="1" value="1"><label style="margin-top:12px">荷物メモ</label><textarea id="ocrMemo" rows="2" placeholder="荷姿の情報等を入力できます"></textarea><div class="photo-options"><label><input id="ocrDropoff" type="checkbox"> 置き配</label><label><input id="ocrLocker" type="checkbox"> 宅配ボックスあり</label><label><input id="ocrAutolock" type="checkbox"> オートロックあり</label></div><div class="slots" id="timeSlots"><button class="slot active" data-slot="なし" onclick="selectTimeSlot(event)">なし</button><button class="slot" data-slot="午前中" onclick="selectTimeSlot(event)">午前中</button><button class="slot" data-slot="12-14時" onclick="selectTimeSlot(event)">12–14時</button><button class="slot" data-slot="14-16時" onclick="selectTimeSlot(event)">14–16時</button><button class="slot" data-slot="16-18時" onclick="selectTimeSlot(event)">16–18時</button><button class="slot" data-slot="18-20時" onclick="selectTimeSlot(event)">18–20時</button><button class="slot" data-slot="19-21時" onclick="selectTimeSlot(event)">19–21時</button><button class="slot" data-slot="20-21時" onclick="selectTimeSlot(event)">20–21時</button></div><div style="margin-top:18px"><label>読み取った住所</label><input id="ocrAddress" type="text" placeholder="写真から自動入力／手入力でも可"><input id="ocrBuilding" type="text" placeholder="建物名・部屋番号（任意）"><div id="ocrStatus" class="confidence">写真を選ぶと住所を読み取れます。</div></div><div class="photo-actions"><button id="ocrBtn" class="scan" onclick="runOCR()">住所を読み取る</button><button class="register" onclick="addStopFromPhoto()">荷物を登録</button></div></div>
+</section>
+
+<section id="performanceView" class="view dark-screen">
+  <div class="dark-head"><button onclick="openDrawer()">☰</button><h2>パフォーマンス</h2><button onclick="openView('mainView')">⌖</button></div>
+  <div class="perf-tabs"><button class="active" onclick="setPerfPeriod('day',this)">日</button><button onclick="setPerfPeriod('week',this)">週</button><button onclick="setPerfPeriod('month',this)">月</button></div>
+  <div class="summary-wrap">
+    <h2 id="perfTitle">本日の実績</h2>
+    <div class="metric-grid perf-grid"><div class="metric"><span>配達完了</span><b id="perfDone">0件</b></div><div class="metric"><span>不在</span><b id="perfAbsent">0件</b></div><div class="metric"><span>未配達</span><b id="perfPending">0件</b></div><div class="metric"><span>荷物合計</span><b id="perfPackages">0個</b></div><div class="metric"><span>走行距離</span><b id="perfDistance">0 km</b><div class="perf-sub">完了処理間の概算</div></div><div class="metric"><span>稼働時間</span><b id="perfWorkTime">0分</b><div class="perf-sub">当日セッション</div></div><div class="metric"><span>登録先</span><b id="perfStops">0件</b></div><div class="metric"><span>完了率</span><b id="perfRate">0%</b></div></div>
+    <div class="notice"><b>配達状況</b><p id="perfNotice">配達先を登録すると集計されます。</p></div>
+  </div>
+</section>
+<section id="settingsView" class="view dark-screen">
+  <div class="dark-head"><button onclick="openDrawer()">☰</button><h2>設定</h2><button onclick="openView('mainView')">⌖</button></div>
+  <div class="settings-list">
+    <button onclick="locateMe(true)"><span>⌖</span><div><b>現在地を再取得</b><small>自動追従を再開します</small></div><i>›</i></button>
+    <button onclick="cycleHeadingAnchor()"><span>➤</span><div><b>進行方向の表示位置</b><small id="settingsHeading">上</small></div><i>›</i></button>
+    <button onclick="togglePitch()"><span>◆</span><div><b>地図表示</b><small>2D / 3D を切替</small></div><i>›</i></button>
+    <button onclick="exportData()"><span>⇧</span><div><b>バックアップを書き出す</b><small>配達先・実績・設定をJSONで保存</small></div><i>›</i></button>
+    <button onclick="document.getElementById('restoreInput').click()"><span>⇩</span><div><b>バックアップを復元</b><small>JSONファイルから復元</small></div><i>›</i></button>
+    <button onclick="document.getElementById('csvInput').click()"><span>CSV</span><div><b>CSV一括読み込み</b><small>住所・建物名・荷物個数・時間帯をまとめて登録</small></div><i>›</i></button>
+    <button onclick="syncAdminData()"><span>↻</span><div><b>管理画面へ同期</b><small>設定した連携URLへ配達データを送信</small></div><i>›</i></button>
+    <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
+    <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
+    <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v25 Operations</div>
+  </div>
+</section>
 
 </div>
+<div id="autoNextToast" class="auto-next-toast"></div>
 <script>
-const KEY='flexStopsV3'; const SEL='flexSelectedV3';
-let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let currentMode='all',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false;
+const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1';
+let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,sheetExpanded=false;
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+function loadMetrics(){try{return JSON.parse(localStorage.getItem(METRICS)||'{}')}catch{return {}}}
+function saveMetrics(){localStorage.setItem(METRICS,JSON.stringify(metrics))}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function ensureTodayMetrics(){const k=todayKey();if(metrics.date!==k)metrics={date:k,startAt:Date.now(),distanceKm:0,lastDonePos:null,completed:0,absent:0};if(!metrics.startAt)metrics.startAt=Date.now();saveMetrics()}
 function saveStops(){localStorage.setItem(KEY,JSON.stringify(stops));updateAll()}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[139.6152,35.5063],zoom:18.6,pitch:18,bearing:0,antialias:true});
@@ -126,6 +309,26 @@ map.on('load',()=>{try{
   if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
 }catch(e){console.warn('building overlay',e)} drawMarkers(); startLocationWatch();});
 let userHeading=0,prevHeadingPos=null,userArrowEl=null;
+const HEADING_ANCHORS=[{deg:0,label:'↑',name:'上'},{deg:90,label:'→',name:'右'},{deg:180,label:'↓',name:'下'},{deg:270,label:'←',name:'左'}];
+let headingAnchorIndex=Number(localStorage.getItem('flexHeadingAnchor')||0);
+if(!Number.isInteger(headingAnchorIndex)||headingAnchorIndex<0||headingAnchorIndex>3)headingAnchorIndex=0;
+
+function applyHeadingAnchor(animate=true){
+  const mode=HEADING_ANCHORS[headingAnchorIndex];
+  const btn=document.getElementById('headingModeBtn');
+  if(btn){btn.textContent=mode.label;btn.setAttribute('aria-label',`進行方向を画面の${mode.name}に表示`);btn.title=`進行方向：${mode.name}（タップで切替）`;}
+  if(!Number.isFinite(userHeading))return;
+  const targetBearing=((userHeading-mode.deg)+360)%360;
+  if(animate) map.easeTo({bearing:targetBearing,duration:350});
+  else map.setBearing(targetBearing);
+  updateHeadingVisual();
+}
+function cycleHeadingAnchor(){
+  headingAnchorIndex=(headingAnchorIndex+1)%HEADING_ANCHORS.length;
+  localStorage.setItem('flexHeadingAnchor',String(headingAnchorIndex));
+  applyHeadingAnchor(true);
+}
+
 function bearingBetween(a,b){
   const r=Math.PI/180,lat1=a.lat*r,lat2=b.lat*r,dLng=(b.lng-a.lng)*r;
   const y=Math.sin(dLng)*Math.cos(lat2);
@@ -167,7 +370,9 @@ function updateUserPosition(p,recenter=false){
   updateHeadingVisual();
   const shouldCenter=recenter || (followMode && currentView==='mainView');
   if(shouldCenter){
-    map.easeTo({center:[userPos.lng,userPos.lat],duration:350});
+    const mode=HEADING_ANCHORS[headingAnchorIndex];
+    const targetBearing=((userHeading-mode.deg)+360)%360;
+    map.easeTo({center:[userPos.lng,userPos.lat],bearing:targetBearing,duration:350});
     hasInitialFix=true;
   }
 }
@@ -190,7 +395,7 @@ function startLocationWatch(){
 function locateMe(recenter){
   followMode=true;
   if(userPos){
-    if(recenter)map.easeTo({center:[userPos.lng,userPos.lat],duration:350});
+    if(recenter){const mode=HEADING_ANCHORS[headingAnchorIndex];const targetBearing=((userHeading-mode.deg)+360)%360;map.easeTo({center:[userPos.lng,userPos.lat],bearing:targetBearing,duration:350});}
     return;
   }
   navigator.geolocation?.getCurrentPosition(
@@ -204,7 +409,7 @@ function drawMarkers(){clearMarkers();stops.forEach((s,i)=>{if(!Number.isFinite(
 function counts(){return{u:stops.filter(s=>s.status!=='done').length,d:stops.filter(s=>s.status==='done').length,t:stops.length}}
 function nextStop(){return stops.find(s=>s.status!=='done')||null}
 function renderStatus(){const el=document.getElementById('statusPill');if(!el)return;const c=counts();el.innerHTML=`未配達 <span class=\"u\">${c.u}</span>　/　完了 <span class=\"d\">${c.d}</span>　/　合計 ${c.t}`;el.style.display=c.t?'block':'none'}
-function updateAll(){renderList();drawMarkers()}
+function updateAll(){renderList();drawMarkers();renderRouteSheet()}
 function formatJapaneseAddress(addr){
   const raw=String(addr||'').trim();
   if(!raw)return '';
@@ -217,30 +422,156 @@ function formatJapaneseAddress(addr){
   return raw;
 }
 function renderNext(){const box=document.getElementById('nextCard');if(box)box.style.display='none'}
-function openView(id,push=true){if(!document.getElementById(id))return;if(push&&id!==currentView)viewStack.push(currentView);document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');currentView=id;if(id==='mainView')setTimeout(()=>{map.resize()},50);if(id==='listView')renderList()}
+
+function openDrawer(){document.getElementById('drawer')?.classList.add('open');document.getElementById('drawerBackdrop')?.classList.add('open');document.getElementById('drawer')?.setAttribute('aria-hidden','false')}
+function closeDrawer(){document.getElementById('drawer')?.classList.remove('open');document.getElementById('drawerBackdrop')?.classList.remove('open');document.getElementById('drawer')?.setAttribute('aria-hidden','true')}
+function drawerGo(id){closeDrawer();openView(id)}
+function renderOverview(){
+  const total=stops.length, done=stops.filter(s=>s.status==='done').length, remain=Math.max(total-done,0), pct=total?Math.round(done/total*100):0;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('overviewDone',done);set('overviewTotal',total);set('overviewRemain',remain);set('overviewStops',total);set('overviewPackages',total);set('progressPct',pct+'%');
+  const ring=document.getElementById('progressRing');if(ring)ring.style.setProperty('--progress',pct+'%');
+  set('overviewNotice',total?`未配達 ${remain}件・完了 ${done}件。地図または今日のルートから配達を続けられます。`:'配達先を登録すると、ここに進捗が表示されます。');
+}
+
+function openView(id,push=true){if(!document.getElementById(id))return;if(push&&id!==currentView)viewStack.push(currentView);document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(id).classList.add('active');currentView=id;if(id==='mainView')setTimeout(()=>{map.resize()},50);if(id==='listView')renderList();if(id==='overviewView')renderOverview();if(id==='performanceView')renderPerformance();if(id==='settingsView')renderSettings();if(id==='searchView'){renderSearchRows();setTimeout(()=>document.getElementById('addressSearchInput')?.focus(),80)}}
 function goBack(){const prev=viewStack.pop()||'mainView';openView(prev,false)}
 function openSelectedDetail(){const s=stops.find(x=>x.id===selectedId)||nextStop();if(!s){alert('配達先を先に登録してください');openView('photoView');return}selectedId=s.id;localStorage.setItem(SEL,selectedId);renderDetail();openView('detailView')}
-function selectStop(id,goMap=false){selectedId=id;localStorage.setItem(SEL,id);const s=stops.find(x=>x.id===id);if(goMap&&s&&Number.isFinite(s.lng))map.easeTo({center:[s.lng,s.lat],zoom:18.5,pitch:pitched?48:0,duration:600});updateAll()}
-function renderDetail(){const s=stops.find(x=>x.id===selectedId);const box=document.getElementById('detailContent');if(!s){box.innerHTML='<div class="panel">配達先がありません。</div>';return}const idx=stops.indexOf(s)+1;box.innerHTML=`<div class="panel"><div class="row"><div><b>${idx}　${esc(formatJapaneseAddress(s.address))}</b><div class="small">${esc(s.name||'')}</div></div><span class="tag">${s.status==='done'?'完了':'未配達'}</span></div><div class="row"><label class="check"><input id="dropoff" type="checkbox" ${s.dropoff?'checked':''}>置き配</label></div><div class="row"><label class="check"><input id="locker" type="checkbox" ${s.locker?'checked':''}>宅配ボックスあり</label></div><div class="row"><label class="check"><input id="autolock" type="checkbox" ${s.autolock?'checked':''}>オートロックあり</label></div></div><div class="panel"><b>配達メモ</b><textarea id="memo" class="wide" rows="4">${esc(s.memo||'')}</textarea></div><div class="panel"><div class="row"><div><b>入口位置</b><div class="small">${s.entry?coordText(s.entry):'未保存'}</div></div><button onclick="savePoint('entry')">現在地を保存</button></div><div class="row"><div><b>駐車位置</b><div class="small">${s.parking?coordText(s.parking):'未保存'}</div></div><button onclick="savePoint('parking')">現在地を保存</button></div></div><div class="detail-actions"><button class="save" onclick="saveDetail()">保存</button><button class="danger" onclick="deleteStop('${s.id}')">この配達先を削除</button></div><button class="ghost" style="width:100%;margin-top:10px;padding:14px;border:0;border-radius:14px;font-weight:700" onclick="goBack()">戻る</button>`}
-function saveDetail(){const s=stops.find(x=>x.id===selectedId);if(!s)return;s.dropoff=dropoff.checked;s.locker=locker.checked;s.autolock=autolock.checked;s.memo=memo.value.trim();saveStops();renderDetail();alert('配達先情報を保存しました')}
+function selectStop(id,goMap=false){selectedId=id;routePreviewActive=false;localStorage.setItem(SEL,id);const s=stops.find(x=>x.id===id);if(goMap&&s&&Number.isFinite(s.lng))map.easeTo({center:[s.lng,s.lat],zoom:18.5,pitch:pitched?48:0,duration:600});updateAll()}
+function renderDetail(){const s=stops.find(x=>x.id===selectedId);const box=document.getElementById('detailContent');if(!s){box.innerHTML='<div class="panel">配達先がありません。</div>';return}const idx=stops.indexOf(s)+1;box.innerHTML=`<div class="panel"><div class="row"><div><b>${idx}　${esc(formatJapaneseAddress(s.address))}</b><div class="small">${esc(s.name||'')}</div></div><span class="tag">${s.status==='done'?'完了':s.status==='absent'?'不在':'未配達'}</span></div><div class="row"><label>荷物個数</label><input id="packageCount" class="compact-input" type="number" min="1" value="${Number(s.packageCount||1)}"></div><div class="row"><label class="check"><input id="dropoff" type="checkbox" ${s.dropoff?'checked':''}>置き配</label></div><div class="row"><label class="check"><input id="locker" type="checkbox" ${s.locker?'checked':''}>宅配ボックスあり</label></div><div class="row"><label class="check"><input id="autolock" type="checkbox" ${s.autolock?'checked':''}>オートロックあり</label></div></div><div class="panel"><b>配達メモ</b><textarea id="memo" class="wide" rows="4">${esc(s.memo||'')}</textarea><div class="quick-memos"><button onclick="appendQuickMemo('玄関前')">玄関前</button><button onclick="appendQuickMemo('宅配BOX')">宅配BOX</button><button onclick="appendQuickMemo('インターホン不要')">インターホン不要</button><button onclick="appendQuickMemo('手渡し')">手渡し</button></div></div><div class="panel"><b>置き配・配達完了写真</b>${s.proofPhoto?`<img class="proof-photo" src="${s.proofPhoto}" alt="配達完了写真">`:''}<label class="proof-upload">📷 写真を撮影・選択<input style="display:none" type="file" accept="image/*" capture="environment" onchange="saveProofPhoto(event,'${s.id}')"></label></div><div class="panel"><b>配達状況</b><div class="status-actions"><button onclick="setStopStatus('${s.id}','undelivered')">未配達</button><button onclick="setStopStatus('${s.id}','absent',true)">不在</button><button class="done" onclick="setStopStatus('${s.id}','done',true)">完了 → 次へ</button></div></div><div class="panel"><div class="row"><div><b>入口位置</b><div class="small">${s.entry?coordText(s.entry):'未保存'}</div></div><button onclick="savePoint('entry')">現在地を保存</button></div><div class="row"><div><b>駐車位置</b><div class="small">${s.parking?coordText(s.parking):'未保存'}</div></div><button onclick="savePoint('parking')">現在地を保存</button></div></div><div class="detail-actions"><button class="save" onclick="saveDetail()">保存</button><button class="danger" onclick="deleteStop('${s.id}')">この配達先を削除</button></div><button class="ghost" style="width:100%;margin-top:10px;padding:14px;border:0;border-radius:14px;font-weight:700" onclick="goBack()">戻る</button>`}
+function saveDetail(){const s=stops.find(x=>x.id===selectedId);if(!s)return;s.dropoff=dropoff.checked;s.locker=locker.checked;s.autolock=autolock.checked;s.memo=memo.value.trim();s.packageCount=Math.max(1,Number(packageCount?.value||1));saveStops();renderDetail();alert('配達先情報を保存しました')}
 function savePoint(type){const s=stops.find(x=>x.id===selectedId);if(!s)return;navigator.geolocation?.getCurrentPosition(p=>{s[type]={lat:p.coords.latitude,lng:p.coords.longitude};saveStops();renderDetail();alert((type==='entry'?'入口':'駐車')+'位置を保存しました')},()=>alert('現在地を取得できませんでした'),{enableHighAccuracy:true})}
 function deleteStop(id){const s=stops.find(x=>x.id===id);if(!s)return;if(!confirm(`「${s.address}」を削除しますか？`))return;stops=stops.filter(x=>x.id!==id);if(selectedId===id)selectedId=stops[0]?.id||null;localStorage.setItem(SEL,selectedId||'');saveStops();openView('listView')}
-function markDone(id){const s=stops.find(x=>x.id===id);if(!s)return;s.status='done';saveStops();alert('配達完了にしました')}
-function startNav(id){const s=stops.find(x=>x.id===id);if(!s)return;const q=encodeURIComponent(s.address+(s.name?' '+s.name:''));location.href=`https://www.google.com/maps/dir/?api=1&destination=${q}`}
-function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,bearing:pitched?-18:0,duration:500})}
+function markDone(id){setStopStatus(id,'done')}
+function setStopStatus(id,status,autoNext=false){const s=stops.find(x=>x.id===id);if(!s)return;ensureTodayMetrics();if(status==='done'&&s.status!=='done'){metrics.completed=(metrics.completed||0)+1;const p=(userPos&&Number.isFinite(userPos.lat))?userPos:(Number.isFinite(s.lat)?{lat:s.lat,lng:s.lng}:null);if(p&&metrics.lastDonePos){metrics.distanceKm=(metrics.distanceKm||0)+hav(metrics.lastDonePos,p)}if(p)metrics.lastDonePos={lat:p.lat,lng:p.lng};}if(status==='absent'&&s.status!=='absent')metrics.absent=(metrics.absent||0)+1;s.status=status;s.statusUpdatedAt=Date.now();saveMetrics();saveStops();renderDetail();renderList();renderOverview();renderPerformance();if(autoNext){const next=findNextOperationalStop();if(next){selectedId=next.id;localStorage.setItem(SEL,next.id);showAutoNextToast(status==='done'?'完了。次の目的地を表示します':'不在に登録。次の目的地を表示します');selectStop(next.id,true);openView('mainView',false);previewShortestRoute().catch(()=>{});}else{showAutoNextToast('本日の配達対象はありません');openView('overviewView',false);}}}
+function showAutoNextToast(msg){const e=document.getElementById('autoNextToast');if(!e)return;e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',2200)}
+function appendQuickMemo(text){const e=document.getElementById('memo');if(!e)return;const cur=e.value.trim();e.value=cur?cur+' / '+text:text}
+function saveProofPhoto(ev,id){const f=ev.target.files?.[0];if(!f)return;const img=new Image(),r=new FileReader();r.onload=()=>{img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);const s=stops.find(x=>x.id===id);if(s){s.proofPhoto=c.toDataURL('image/jpeg',.72);saveStops();renderDetail();}};img.src=r.result};r.readAsDataURL(f)}
+function openExternalMapChooser(id){
+  const s=stops.find(x=>x.id===id);if(!s)return;
+  selectedId=id;localStorage.setItem(SEL,id);
+  const modal=document.getElementById('mapAppChooser');
+  if(modal)modal.classList.add('show');
+}
+function closeMapAppChooser(){document.getElementById('mapAppChooser')?.classList.remove('show')}
+function launchExternalMap(kind){
+  const s=stops.find(x=>x.id===selectedId);if(!s){closeMapAppChooser();return}
+  const q=encodeURIComponent(s.address+(s.name?' '+s.name:''));
+  closeMapAppChooser();
+  if(kind==='apple') location.href=`https://maps.apple.com/?daddr=${q}&dirflg=d`;
+  else location.href=`https://www.google.com/maps/dir/?api=1&destination=${q}`;
+}
+function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,duration:500})}
 function hav(a,b){const R=6371,toR=x=>x*Math.PI/180,dLat=toR(b.lat-a.lat),dLng=toR(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
-function optimizeRoute(){const pending=stops.filter(s=>s.status!=='done'),done=stops.filter(s=>s.status==='done');if(pending.length<2){renderList();openView('listView');return}let cur=userPos||{lat:pending[0].lat,lng:pending[0].lng};let left=[...pending],ordered=[];while(left.length){let best=0,bestD=Infinity;left.forEach((s,i)=>{const d=(Number.isFinite(s.lat)&&Number.isFinite(s.lng)&&Number.isFinite(cur.lat))?hav(cur,s):99999;if(d<bestD){bestD=d;best=i}});const n=left.splice(best,1)[0];ordered.push(n);if(Number.isFinite(n.lat))cur={lat:n.lat,lng:n.lng}}stops=[...ordered,...done];saveStops();renderList();openView('listView')}
+function slotPriority(slot){if(!slot||slot==='なし')return 999;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),map={'午前中':[0,720],'12-14時':[720,840],'14-16時':[840,960],'16-18時':[960,1080],'18-20時':[1080,1200],'19-21時':[1140,1260],'20-21時':[1200,1260]},w=map[slot];if(!w)return 999;if(mins>w[1])return 50+(mins-w[1])/60;if(mins>=w[0])return 0;return Math.max(1,(w[0]-mins)/60)}
+function findNextOperationalStop(origin=userPos){const list=stops.filter(s=>(s.status||'undelivered')==='undelivered'&&Number.isFinite(s.lat)&&Number.isFinite(s.lng));if(!list.length)return null;let best=null,score=Infinity;for(const s of list){const d=origin?hav(origin,s):0,p=slotPriority(s.timeSlot);const sc=p*5+d;if(sc<score){score=sc;best=s}}return best}
+function optimizeRoute(){const pending=stops.filter(s=>(s.status||'undelivered')!=='done'),done=stops.filter(s=>s.status==='done');if(pending.length<2){renderList();openView('listView');return}let cur=userPos||{lat:pending[0].lat,lng:pending[0].lng};let left=[...pending],ordered=[];while(left.length){let best=0,bestScore=Infinity;left.forEach((s,i)=>{const d=(Number.isFinite(s.lat)&&Number.isFinite(s.lng)&&Number.isFinite(cur.lat))?hav(cur,s):99999;const sc=slotPriority(s.timeSlot)*5+d+(s.status==='absent'?25:0);if(sc<bestScore){bestScore=sc;best=i}});const n=left.splice(best,1)[0];ordered.push(n);if(Number.isFinite(n.lat))cur={lat:n.lat,lng:n.lng}}stops=[...ordered,...done];saveStops();renderList();openView('listView')}
 function filterMode(m){currentMode=m;renderList()}
-function renderList(){const box=document.getElementById('stopList');if(!box)return;const q=(document.getElementById('searchBox')?.value||'').toLowerCase();const list=stops.filter(s=>(currentMode==='all'||s.status===currentMode)&&(`${s.address}${s.name||''}`.toLowerCase().includes(q)));if(!list.length){box.innerHTML=`<div class="empty-list"><b>${stops.length?'該当する配達先がありません':'配達先は0件です'}</b><div>${stops.length?'検索条件を変更してください。':'写真または手入力で登録してください。'}</div></div>`;return}box.innerHTML='';list.forEach(s=>{const idx=stops.indexOf(s)+1;const d=userPos&&Number.isFinite(s.lat)?hav(userPos,s):null;const div=document.createElement('div');div.className='stop';div.innerHTML=`<div class="num ${s.id===selectedId?'active':''}">${idx}</div><div><h3>${esc(s.name||'名称なし')}</h3><p>${esc(formatJapaneseAddress(s.address))}</p></div><div class="distance">${s.status==='done'?'完了':'未配達'}${d!==null?`<br>約 ${d.toFixed(1)} km`:''}<br><button class="delbtn" onclick="event.stopPropagation();deleteStop('${s.id}')">削除</button></div>`;div.onclick=()=>{selectStop(s.id,true);openView('mainView')};box.appendChild(div)})}
-function previewPhoto(e){const f=e.target.files?.[0];if(!f)return;const img=document.getElementById('preview');img.src=URL.createObjectURL(f);img.style.display='block';ocrStatus.textContent='写真を選択しました。文字読み取りを実行できます。'}
-async function runOCR(){const f=photoInput.files?.[0];if(!f){alert('先に写真を選んでください');return}const btn=ocrBtn;btn.classList.add('loading');btn.textContent='読み取り中…';ocrStatus.textContent='画像を解析しています。少し時間がかかる場合があります。';try{if(!window.Tesseract){await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js')}const r=await Tesseract.recognize(f,'jpn+eng',{logger:m=>{if(m.status==='recognizing text')ocrStatus.textContent=`読み取り中 ${Math.round((m.progress||0)*100)}%`}});const text=(r.data.text||'').replace(/\s+/g,' ').trim();const addr=extractJapaneseAddress(text);ocrAddress.value=addr||text;ocrStatus.textContent=addr?'住所候補を抽出しました。必ず確認・修正してください。':'文字は読み取れました。住所部分だけになるよう修正してください。'}catch(e){ocrStatus.textContent='自動読み取りに失敗しました。住所を手入力してください。'}finally{btn.classList.remove('loading');btn.textContent='写真から文字を読み取る'}}
+function setListMode(mode){currentMode=mode;renderList()}
+function renderList(){
+  const box=document.getElementById('stopList');if(!box)return;
+  const cu=stops.filter(s=>s.status==='undelivered'||!s.status).length, ca=stops.filter(s=>s.status==='absent').length, cd=stops.filter(s=>s.status==='done').length;
+  const u=document.getElementById('countUndelivered'),a=document.getElementById('countAbsent'),d=document.getElementById('countDone');if(u)u.textContent=`${cu}件`;if(a)a.textContent=`${ca}件`;if(d)d.textContent=`${cd}件`;
+  ['Undelivered','Absent','Done'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('active'));const cap=currentMode.charAt(0).toUpperCase()+currentMode.slice(1);document.getElementById('tab'+cap)?.classList.add('active');
+  const upd=document.getElementById('listUpdated');if(upd)upd.textContent=new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const list=stops.filter(s=>(s.status||'undelivered')===currentMode);
+  if(!list.length){box.innerHTML=`<div class="empty-package"><div class="boxicon">📦</div><div>登録されている荷物はありません<br>地図画面から、荷物を登録しましょう</div></div>`;return}
+  box.innerHTML='';list.forEach(s=>{const idx=stops.indexOf(s)+1;const div=document.createElement('div');div.className='ref-stop';div.innerHTML=`<div class="num ${s.id===selectedId?'active':''}">${idx}</div><div><h3>${esc(formatJapaneseAddress(s.address))}</h3><p>${esc(s.name||'')}${s.timeSlot&&s.timeSlot!=='なし'?` ・ ${esc(s.timeSlot)}`:''}</p></div><div class="status-small">${s.status==='done'?'完了':s.status==='absent'?'不在':'配達'}${s.status==='absent'?`<button class="redelivery-btn" onclick="event.stopPropagation();setStopStatus('${s.id}','undelivered')">再配達へ</button>`:''}<button onclick="event.stopPropagation();deleteStop('${s.id}')">削除</button></div>`;div.onclick=()=>{selectStop(s.id,true);openView('mainView')};box.appendChild(div)});
+}
+
+function pendingStops(){return stops.filter(s=>(s.status||'undelivered')==='undelivered' && Number.isFinite(s.lat) && Number.isFinite(s.lng))}
+function nearestPending(origin){return findNextOperationalStop(origin)}
+function nextAfter(target){const list=pendingStops().filter(s=>s.id!==target?.id);if(!target||!list.length)return null;let best=list[0],bd=Infinity;for(const s of list){const d=hav(target,s);if(d<bd){bd=d;best=s}}return best}
+function formatKm(m){return m<1000?`${Math.round(m)} m`:`${(m/1000).toFixed(1)} km`}
+function renderRouteSheet(){
+  const box=document.getElementById('packageInfo');if(!box)return;
+  let s=stops.find(x=>x.id===selectedId && (x.status||'undelivered')!=='done');
+  if(!s){const origin=userPos||{lat:map.getCenter().lat,lng:map.getCenter().lng};s=nearestPending(origin);if(s){selectedId=s.id;localStorage.setItem(SEL,s.id)}}
+  const title=document.getElementById('routeSheetTitle'),stats=document.getElementById('routeStats'),win=document.getElementById('routeWindow');
+  if(!s){title.textContent='次の目的地';stats.textContent='— 分・— km';win.textContent='配達先を登録してください';box.innerHTML='<div class="empty-package">荷物情報はありません</div>';return}
+  title.textContent=formatJapaneseAddress(s.address);if(!routePreviewActive)stats.textContent='— 分・— km';win.textContent=s.timeSlot&&s.timeSlot!=='なし'?s.timeSlot:'時間指定なし';
+  const next=nextAfter(s),pkgCount=Number(s.packageCount||1);
+  box.innerHTML=`<div class="package-card"><h3>① ${esc(formatJapaneseAddress(s.address))}${s.name?`<br>${esc(s.name)}`:''}</h3><div class="package-line"><span class="package-label">荷物</span><span class="package-value">${pkgCount}個</span></div><div class="package-line"><span class="package-label">配達時間</span><span class="package-value">${esc(s.timeSlot&&s.timeSlot!=='なし'?s.timeSlot:'指定なし')}</span></div><div class="package-line"><span class="package-label">置き配</span><span class="package-value">${s.dropoff?'希望あり':'指定なし'}</span></div><div class="package-line"><span class="package-label">荷物メモ</span><span class="package-value">${esc(s.memo||'なし')}</span></div><div class="package-badge">📦 荷物 ${pkgCount}個</div>${next?`<div class="next-destination"><small>次の目的地</small>${esc(formatJapaneseAddress(next.address))}${next.name?`<br>${esc(next.name)}`:''}</div>`:''}</div>`;
+}
+function toggleRouteSheet(force){sheetExpanded=typeof force==='boolean'?force:!sheetExpanded;document.getElementById('routeSheet')?.classList.toggle('expanded',sheetExpanded);document.getElementById('mainView')?.classList.toggle('route-open',sheetExpanded)}
+function clearRouteLine(){if(map.getLayer('route-line'))map.removeLayer('route-line');if(map.getLayer('route-line-outline'))map.removeLayer('route-line-outline');if(map.getSource('route-preview'))map.removeSource('route-preview')}
+function addRouteLine(geometry){clearRouteLine();map.addSource('route-preview',{type:'geojson',data:{type:'Feature',properties:{},geometry}});map.addLayer({id:'route-line-outline',type:'line',source:'route-preview',paint:{'line-color':'#ffffff','line-width':10,'line-opacity':.92},layout:{'line-join':'round','line-cap':'round'}});map.addLayer({id:'route-line',type:'line',source:'route-preview',paint:{'line-color':'#18b8f2','line-width':6,'line-opacity':1},layout:{'line-join':'round','line-cap':'round'}})}
+async function previewShortestRoute(){
+  const origin=userPos||{lat:map.getCenter().lat,lng:map.getCenter().lng};let target=nearestPending(origin);if(!target){alert('配達先を先に登録してください');return}
+  selectedId=target.id;localStorage.setItem(SEL,target.id);const next=nextAfter(target);renderRouteSheet();
+  const firstCoords=`${origin.lng},${origin.lat};${target.lng},${target.lat}`;
+  const allCoords=next?`${firstCoords};${next.lng},${next.lat}`:firstCoords;
+  const btn=document.querySelector('.route-preview-btn');if(btn){btn.disabled=true;btn.textContent='ルート計算中…'}
+  try{
+    const [r1,r2]=await Promise.all([
+      fetch(`https://router.project-osrm.org/route/v1/driving/${firstCoords}?overview=false&steps=false`),
+      fetch(`https://router.project-osrm.org/route/v1/driving/${allCoords}?overview=full&geometries=geojson&steps=false`)
+    ]);
+    const j1=await r1.json(),j2=await r2.json();if(!j1.routes?.[0]||!j2.routes?.[0])throw new Error('route');
+    const leg=j1.routes[0],full=j2.routes[0];document.getElementById('routeStats').textContent=`${Math.max(1,Math.round(leg.duration/60))} 分・${formatKm(leg.distance)}`;routePreviewActive=true;addRouteLine(full.geometry);
+    const coords=full.geometry.coordinates,b=new maplibregl.LngLatBounds(coords[0],coords[0]);coords.forEach(c=>b.extend(c));followMode=false;map.fitBounds(b,{padding:{top:130,bottom:190,left:45,right:85},duration:700,maxZoom:17.8});
+    renderRouteSheet();
+  }catch(e){
+    const d=hav(origin,target)*1000,mins=Math.max(1,Math.round(d/350));document.getElementById('routeStats').textContent=`約${mins} 分・${formatKm(d)}`;routePreviewActive=true;alert('道路ルートを取得できなかったため、概算距離を表示しています。');
+  }finally{if(btn){btn.disabled=false;btn.textContent='ルートのプレビュー'}}
+}
+function openSelectedExternalMap(){let s=stops.find(x=>x.id===selectedId);if(!s)s=nearestPending(userPos||{lat:map.getCenter().lat,lng:map.getCenter().lng});if(!s){alert('配達先を先に登録してください');return}openExternalMapChooser(s.id)}
+(function enableSheetSwipe(){let sy=null;document.addEventListener('touchstart',e=>{if(!e.target.closest('#routeSheet'))return;sy=e.touches[0].clientY},{passive:true});document.addEventListener('touchend',e=>{if(sy===null)return;const y=e.changedTouches[0].clientY,dy=y-sy;sy=null;if(dy<-45)toggleRouteSheet(true);else if(dy>45)toggleRouteSheet(false)},{passive:true})})();
+
+function previewPhoto(e){const f=e.target.files?.[0];if(!f)return;const img=document.getElementById('preview');img.src=URL.createObjectURL(f);img.style.display='block';document.querySelector('.camera-placeholder')?.style.setProperty('display','none');ocrStatus.textContent='写真を選択しました。住所読み取りを押してください。'}
+
+let selectedTimeSlot='なし';
+function selectTimeSlot(e){e.preventDefault();document.querySelectorAll('.slot').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');selectedTimeSlot=e.currentTarget.dataset.slot||'なし'}
+const HIST='flexAddressHistoryV1',FAV='flexAddressFavoritesV1';
+function getArr(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
+function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function rememberAddress(addr){let h=getArr(HIST).filter(x=>x!==addr);h.unshift(addr);setArr(HIST,h.slice(0,12));renderSearchRows()}
+function renderSearchRows(){
+  const h=document.getElementById('historyRows'),f=document.getElementById('favoriteAddressRows');if(!h||!f)return;
+  const fav=getArr(FAV);f.innerHTML=fav.length?fav.map(a=>`<div class="address-row"><span>★</span><button onclick="quickUseAddress('${encodeURIComponent(a)}')">${esc(a)}</button><span class="chev">›</span></div>`).join(''):`<div class="history-empty">お気に入り住所はありません</div>`;
+  const hist=getArr(HIST);h.innerHTML=hist.length?hist.map(a=>`<div class="address-row"><span>◷</span><button onclick="quickUseAddress('${encodeURIComponent(a)}')">${esc(a)}</button><span class="chev">›</span></div>`).join(''):`<div class="history-empty">検索履歴はありません</div>`;
+}
+function normalizeAddressKey(a,b=''){return (String(a||'')+String(b||'')).replace(/[\s　‐‑‒–—―ー−ｰ]/g,'').replace(/丁目|番地|番|号/g,'').toLowerCase()}
+function mergeIfDuplicate(candidate){const key=normalizeAddressKey(candidate.address,candidate.name),existing=stops.find(s=>normalizeAddressKey(s.address,s.name)===key);if(!existing)return null;existing.packageCount=Number(existing.packageCount||1)+Number(candidate.packageCount||1);if(candidate.memo)existing.memo=[existing.memo,candidate.memo].filter(Boolean).join(' / ');existing.dropoff=existing.dropoff||candidate.dropoff;existing.locker=existing.locker||candidate.locker;existing.autolock=existing.autolock||candidate.autolock;if(existing.timeSlot==='なし'&&candidate.timeSlot&&candidate.timeSlot!=='なし')existing.timeSlot=candidate.timeSlot;selectedId=existing.id;localStorage.setItem(SEL,existing.id);saveStops();alert('同じ住所が登録済みのため、荷物を同じ配達先にまとめました。');return existing}
+async function quickUseAddress(enc){const a=decodeURIComponent(enc);const inp=document.getElementById('addressSearchInput');if(inp)inp.value=a;await searchAddressAndAdd()}
+async function searchAddressAndAdd(){
+  const inp=document.getElementById('addressSearchInput');const raw=(inp?.value||'').trim();if(!raw){alert('住所または郵便番号を入力してください');return}
+  const pos=await geocode(raw);if(!pos){alert('場所を特定できませんでした。住所を詳しく入力してください。');return}
+  rememberAddress(raw);const s={id:uid(),address:formatJapaneseAddress(raw),name:'',memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:'なし',lat:pos.lat,lng:pos.lng,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('ocrPackageCount')?.value||1))};if(mergeIfDuplicate(s)){openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});openView('mainView',false)
+}
+async function useCurrentLocationAddress(){
+  if(!userPos){locateMe(true);alert('現在地を取得中です。取得後もう一度押してください。');return}
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userPos.lat}&lon=${userPos.lng}&zoom=18&addressdetails=1`,{headers:{'Accept-Language':'ja'}});const j=await r.json();const a=j.display_name||'現在地';document.getElementById('addressSearchInput').value=a;document.getElementById('currentAddressRow').textContent=a}catch{document.getElementById('currentAddressRow').textContent='現在地'}
+}
+
+async function runOCR(){const f=photoInput.files?.[0];if(!f){alert('先に写真を選んでください');return}const btn=ocrBtn;btn.classList.add('loading');btn.textContent='読み取り中…';ocrStatus.textContent='画像を解析しています。少し時間がかかる場合があります。';try{if(!window.Tesseract){await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js')}const r=await Tesseract.recognize(f,'jpn+eng',{logger:m=>{if(m.status==='recognizing text')ocrStatus.textContent=`読み取り中 ${Math.round((m.progress||0)*100)}%`}});const text=(r.data.text||'').replace(/\s+/g,' ').trim();const addr=extractJapaneseAddress(text);ocrAddress.value=addr||text;ocrStatus.textContent=addr?'住所候補を抽出しました。必ず確認・修正してください。':'文字は読み取れました。住所部分だけになるよう修正してください。'}catch(e){ocrStatus.textContent='自動読み取りに失敗しました。住所を手入力してください。'}finally{btn.classList.remove('loading');btn.textContent='住所を読み取る'}}
 function extractJapaneseAddress(t){const m=t.match(/(?:〒?\d{3}-?\d{4}\s*)?((?:東京都|北海道|(?:京都|大阪)府|.{2,3}県).{2,40}?(?:\d+[丁目番地号\-−ー]\s*){1,5})/);return m?m[1].replace(/\s+/g,''):''}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 async function geocode(addr){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=${encodeURIComponent(addr)}`,{headers:{'Accept-Language':'ja'}});const j=await r.json();if(j[0])return{lat:+j[0].lat,lng:+j[0].lon}}catch{}return null}
-async function addStopFromPhoto(){const address=formatJapaneseAddress(ocrAddress.value.trim());if(!address){alert('住所を入力してください');return}const btn=event.currentTarget;btn.classList.add('loading');btn.textContent='登録中…';const pos=await geocode(address);const s={id:uid(),address,name:ocrBuilding.value.trim(),memo:ocrMemo.value.trim(),dropoff:ocrDropoff.checked,locker:ocrLocker.checked,autolock:ocrAutolock.checked,status:'undelivered',lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null};stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();btn.classList.remove('loading');btn.textContent='確認した内容で登録';ocrAddress.value='';ocrBuilding.value='';ocrMemo.value='';photoInput.value='';preview.style.display='none';if(pos)map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:600});else alert('住所は登録しましたが、地図上の位置を特定できませんでした。住所を確認してください。');openView('listView')}
+async function addStopFromPhoto(){const address=formatJapaneseAddress(ocrAddress.value.trim());if(!address){alert('住所を入力してください');return}const btn=document.querySelector('.photo-actions .register');if(btn){btn.classList.add('loading');btn.textContent='登録中…';}const pos=await geocode(address);const s={id:uid(),address,name:ocrBuilding.value.trim(),memo:ocrMemo.value.trim(),dropoff:ocrDropoff.checked,locker:ocrLocker.checked,autolock:ocrAutolock.checked,status:'undelivered',timeSlot:selectedTimeSlot,lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('ocrPackageCount')?.value||1))};if(mergeIfDuplicate(s)){if(btn){btn.classList.remove('loading');btn.textContent='荷物を登録';}openView('listView');return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();if(btn){btn.classList.remove('loading');btn.textContent='荷物を登録';}ocrAddress.value='';ocrBuilding.value='';ocrMemo.value='';if(document.getElementById('ocrPackageCount'))document.getElementById('ocrPackageCount').value='1';photoInput.value='';preview.style.display='none';document.querySelector('.camera-placeholder')?.style.setProperty('display','flex');selectedTimeSlot='なし';document.querySelectorAll('.slot').forEach((b,i)=>b.classList.toggle('active',i===0));if(pos)map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:600});else alert('住所は登録しましたが、地図上の位置を特定できませんでした。住所を確認してください。');openView('listView')}
+async function addManualAddress(){const a=(document.getElementById('manualAddress')?.value||'').trim();const b=(document.getElementById('manualBuilding')?.value||'').trim();if(!a){alert('住所を入力してください');return}const pos=await geocode(a);const s={id:uid(),address:formatJapaneseAddress(a),name:b,memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:'なし',lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null,packageCount:1};if(mergeIfDuplicate(s)){rememberAddress(a);openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();rememberAddress(a);if(pos)map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});else alert('住所は登録しましたが地図上の位置を特定できませんでした。');openView('mainView',false)}
+function renderPerformance(){ensureTodayMetrics();const total=stops.length,done=stops.filter(s=>s.status==='done').length,absent=stops.filter(s=>s.status==='absent').length,pending=total-done-absent,packages=stops.reduce((n,s)=>n+Number(s.packageCount||1),0),rate=total?Math.round(done/total*100):0;const elapsed=Math.max(0,Math.round((Date.now()-Number(metrics.startAt||Date.now()))/60000));const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('perfDone',done+'件');set('perfAbsent',absent+'件');set('perfPending',pending+'件');set('perfPackages',packages+'個');set('perfStops',total+'件');set('perfRate',rate+'%');set('perfDistance',(Number(metrics.distanceKm||0)).toFixed(1)+' km');set('perfWorkTime',elapsed+'分');set('perfNotice',total?`完了 ${done}件・不在 ${absent}件・未配達 ${pending}件です。`:'配達先を登録すると集計されます。');}
+function setPerfPeriod(period,btn){document.querySelectorAll('.perf-tabs button').forEach(b=>b.classList.remove('active'));btn?.classList.add('active');document.getElementById('perfTitle').textContent=period==='day'?'本日の実績':period==='week'?'今週の実績':'今月の実績';renderPerformance()}
+function renderSettings(){const e=document.getElementById('settingsHeading');if(e)e.textContent=HEADING_ANCHORS[headingAnchorIndex].name;const u=document.getElementById('adminSyncUrl');if(u)u.value=localStorage.getItem(ADMIN_URL)||''}
+function exportData(){const data={version:25,exportedAt:new Date().toISOString(),stops,metrics,headingAnchorIndex,favorites:getArr(FAV),history:getArr(HIST),adminUrl:localStorage.getItem(ADMIN_URL)||''};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='flex-route-assist-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+async function restoreData(ev){const f=ev.target.files?.[0];if(!f)return;if(!confirm('現在のデータをバックアップ内容で置き換えますか？')){ev.target.value='';return}try{const j=JSON.parse(await f.text());const arr=Array.isArray(j)?j:j.stops;if(!Array.isArray(arr))throw new Error('invalid');stops=arr;metrics=j.metrics||metrics;if(Array.isArray(j.favorites))setArr(FAV,j.favorites);if(Array.isArray(j.history))setArr(HIST,j.history);if(j.adminUrl)localStorage.setItem(ADMIN_URL,j.adminUrl);saveMetrics();saveStops();alert('バックアップを復元しました');openView('overviewView',false)}catch{alert('バックアップファイルを読み込めませんでした')}finally{ev.target.value=''}}
+function parseCsvLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out}
+async function importCsv(ev){const f=ev.target.files?.[0];if(!f)return;try{const text=await f.text(),lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(Boolean);if(!lines.length)throw 0;const rows=lines.map(parseCsvLine),head=rows[0].map(x=>x.trim()),hasHeader=head.some(x=>/住所|address/i.test(x)),data=hasHeader?rows.slice(1):rows;let added=0,merged=0;for(const r of data){const address=(hasHeader?r[head.findIndex(x=>/住所|address/i.test(x))]:r[0]||'').trim();if(!address)continue;const building=(hasHeader?r[head.findIndex(x=>/建物|building/i.test(x))]:r[1]||'').trim();const pc=Math.max(1,Number(hasHeader?r[head.findIndex(x=>/荷物個数|個数|package/i.test(x))]:r[2])||1);const slot=(hasHeader?r[head.findIndex(x=>/時間|time/i.test(x))]:r[3]||'なし').trim()||'なし';const memo=(hasHeader?r[head.findIndex(x=>/メモ|memo/i.test(x))]:r[4]||'').trim();const drop=String(hasHeader?r[head.findIndex(x=>/置き配|drop/i.test(x))]:r[5]||'').match(/1|true|yes|あり|置き配/i)!=null;const pos=await geocode(address);const cand={id:uid(),address:formatJapaneseAddress(address),name:building,memo,dropoff:drop,locker:false,autolock:false,status:'undelivered',timeSlot:slot,lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null,packageCount:pc};const ex=stops.find(s=>normalizeAddressKey(s.address,s.name)===normalizeAddressKey(cand.address,cand.name));if(ex){ex.packageCount=Number(ex.packageCount||1)+pc;if(memo)ex.memo=[ex.memo,memo].filter(Boolean).join(' / ');merged++;}else{stops.push(cand);added++;}}saveStops();alert(`CSV読み込み完了：新規 ${added}件・同一住所へ統合 ${merged}件`);openView('listView',false)}catch(e){alert('CSVを読み込めませんでした')}finally{ev.target.value=''}}
+function saveAdminSyncUrl(){const u=document.getElementById('adminSyncUrl')?.value.trim()||'';localStorage.setItem(ADMIN_URL,u);alert(u?'連携URLを保存しました':'連携URLを空にしました')}
+async function syncAdminData(){const url=localStorage.getItem(ADMIN_URL)||document.getElementById('adminSyncUrl')?.value.trim();if(!url){alert('先に管理画面連携URLを設定してください');return}try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:'Flex Route Assist',syncedAt:new Date().toISOString(),stops,metrics})});if(!r.ok)throw new Error(String(r.status));alert('管理画面へ同期しました')}catch(e){alert('管理画面への同期に失敗しました。連携URLを確認してください。')}}
+function clearAllStops(){if(!stops.length){alert('削除する配達データはありません');return}if(!confirm('登録している配達先・荷物データをすべて削除しますか？'))return;stops=[];selectedId=null;localStorage.removeItem(SEL);saveStops();clearRouteLine();alert('配達データをすべて削除しました');openView('overviewView',false)}
 function coordText(p){return `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-window.addEventListener('load',()=>{updateAll();history.replaceState({view:'mainView'},'');if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+window.addEventListener('load',()=>{ensureTodayMetrics();updateAll();const hb=document.getElementById('headingModeBtn');if(hb){hb.textContent=HEADING_ANCHORS[headingAnchorIndex].label;hb.title=`進行方向：${HEADING_ANCHORS[headingAnchorIndex].name}（タップで切替）`;}history.replaceState({view:'mainView'},'');if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
 </script>
+
+<div id="mapAppChooser" class="map-app-chooser" onclick="if(event.target===this)closeMapAppChooser()">
+  <div class="map-app-dialog" role="dialog" aria-modal="true" aria-label="地図アプリを選択">
+    <h3>地図アプリを選択</h3>
+    <button onclick="launchExternalMap('apple')">アップルマップ</button>
+    <button onclick="launchExternalMap('google')">グーグルマップ</button>
+    <button class="cancel" onclick="closeMapAppChooser()">キャンセル</button>
+  </div>
+</div>
 </body>
 </html>
