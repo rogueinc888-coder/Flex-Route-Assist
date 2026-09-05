@@ -388,7 +388,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 <section id="settingsView" class="view dark-screen">
   <div class="dark-head"><button onclick="openDrawer()">☰</button><h2>設定</h2><button onclick="openView('mainView')">⌖</button></div>
   <div class="settings-list">
-    <div class="map-theme-setting"><div class="map-theme-copy"><span>◐</span><div><b>地図の背景色</b><small>黒 / 白を選択</small></div></div><div class="map-theme-buttons"><button id="mapThemeDark" type="button" onclick="setMapTheme('dark')">黒</button><button id="mapThemeLight" type="button" onclick="setMapTheme('light')">白</button></div></div>
+    <div class="map-theme-setting"><div class="map-theme-copy"><span>◐</span><div><b>地図の背景色</b><small>ナイト（薄い黒） / 白を選択</small></div></div><div class="map-theme-buttons"><button id="mapThemeDark" type="button" onclick="setMapTheme('dark')">黒</button><button id="mapThemeLight" type="button" onclick="setMapTheme('light')">白</button></div></div>
     <button onclick="togglePitch()"><span>◆</span><div><b>地図表示</b><small>2D / 3D を切替</small></div><i>›</i></button>
     <button onclick="exportData()"><span>⇧</span><div><b>バックアップを書き出す</b><small>配達先・実績・設定をJSONで保存</small></div><i>›</i></button>
     <button onclick="document.getElementById('restoreInput').click()"><span>⇩</span><div><b>バックアップを復元</b><small>JSONファイルから復元</small></div><i>›</i></button>
@@ -397,7 +397,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v32 Hidden Sheet</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v33 Night Map</div>
   </div>
 </section>
 
@@ -407,6 +407,46 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1';
 const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/dark',light:'https://tiles.openfreemap.org/styles/positron'};
 let mapTheme=localStorage.getItem(MAP_THEME_KEY)||'light'; if(!MAP_STYLES[mapTheme])mapTheme='light';
+// v33: darkテーマを真っ黒ではなく、建物・道路・地名が判別しやすい薄いナイトモードへ調整。
+function applyNightPalette(){
+  if(mapTheme!=='dark'||!map||!map.isStyleLoaded())return;
+  const layers=(map.getStyle()&&map.getStyle().layers)||[];
+  const safe=(id,prop,val)=>{try{map.setPaintProperty(id,prop,val)}catch(e){}};
+  for(const layer of layers){
+    const id=(layer.id||'').toLowerCase();
+    const sl=String(layer['source-layer']||'').toLowerCase();
+    const key=id+' '+sl;
+    if(layer.type==='background'){
+      safe(layer.id,'background-color','#2a3947');
+      safe(layer.id,'background-opacity',1);
+    }else if(layer.type==='fill'){
+      let c='#314451';
+      if(/water|ocean|river|lake/.test(key))c='#203f50';
+      else if(/park|wood|forest|grass|landcover|landuse/.test(key))c='#304b46';
+      else if(/building/.test(key))c='#4b5d6b';
+      safe(layer.id,'fill-color',c);
+      safe(layer.id,'fill-opacity',0.90);
+      safe(layer.id,'fill-outline-color',/building/.test(key)?'#748695':'#465a68');
+    }else if(layer.type==='line'){
+      let c='#607482';
+      if(/motorway|trunk|primary/.test(key))c='#788b98';
+      else if(/road|street|highway|transportation/.test(key))c='#687d8c';
+      else if(/rail/.test(key))c='#82929d';
+      else if(/boundary/.test(key))c='#516674';
+      safe(layer.id,'line-color',c);
+      safe(layer.id,'line-opacity',0.92);
+    }else if(layer.type==='symbol'){
+      safe(layer.id,'text-color','#e2e9ee');
+      safe(layer.id,'text-halo-color','#263744');
+      safe(layer.id,'text-halo-width',1.2);
+      safe(layer.id,'text-opacity',0.96);
+      safe(layer.id,'icon-opacity',0.92);
+    }else if(layer.type==='fill-extrusion'){
+      safe(layer.id,'fill-extrusion-color','#566977');
+      safe(layer.id,'fill-extrusion-opacity',0.80);
+    }
+  }
+}
 let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,sheetExpanded=false;
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
 function loadMetrics(){try{return JSON.parse(localStorage.getItem(METRICS)||'{}')}catch{return {}}}
@@ -419,24 +459,17 @@ const map=new maplibregl.Map({container:'map',style:MAP_STYLES[mapTheme],center:
 function restoreBuildingOverlays(){
   const style=map.getStyle();
   const srcId=Object.keys(style.sources||{}).find(k=>style.sources[k].type==='vector');
-  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':mapTheme==='dark'?'#3b4650':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
+  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':mapTheme==='dark'?'#5a6b78':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
   if(!map.getSource('gsi-buildings'))map.addSource('gsi-buildings',{type:'vector',tiles:['https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'],minzoom:4,maxzoom:16,attribution:'<a href=\"https://maps.gsi.go.jp/vector/\" target=\"_blank\">地理院地図Vector</a>'});
-  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':mapTheme==='dark'?'#303942':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':mapTheme==='dark'?'#65717a':'#9e9a92'}});
-  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':mapTheme==='dark'?'#39434b':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
+  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':mapTheme==='dark'?'#4c5e6b':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':mapTheme==='dark'?'#7b8c98':'#9e9a92'}});
+  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':mapTheme==='dark'?'#566875':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
 }
 // 自動追従は初期状態ON。ユーザーが地図を動かす/ピンチズームした時だけOFF。現在地ボタンで再開。
 map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
 map.on('zoomstart',e=>{if(e.originalEvent)followMode=false});
 map.on('rotatestart',e=>{if(e.originalEvent)followMode=false});
-map.on('load',()=>{try{
-  const style=map.getStyle();
-  const srcId=Object.keys(style.sources).find(k=>style.sources[k].type==='vector');
-  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
-  if(!map.getSource('gsi-buildings'))map.addSource('gsi-buildings',{type:'vector',tiles:['https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'],minzoom:4,maxzoom:16,attribution:'<a href=\"https://maps.gsi.go.jp/vector/\" target=\"_blank\">地理院地図Vector</a>'});
-  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':'#9e9a92'}});
-  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
-}catch(e){console.warn('building overlay',e)} drawMarkers(); startLocationWatch();});
-map.on('style.load',()=>{try{restoreBuildingOverlays()}catch(e){console.warn('style overlay',e)}});
+map.on('load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('building overlay',e)} drawMarkers(); startLocationWatch();});
+map.on('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('style overlay',e)}});
 let userHeading=0,prevHeadingPos=null,userArrowEl=null;
 const HEADING_ANCHORS=[{deg:0,label:'↑',name:'上'},{deg:90,label:'→',name:'右'},{deg:180,label:'↓',name:'下'},{deg:270,label:'←',name:'左'}];
 let headingAnchorIndex=Number(localStorage.getItem('flexHeadingAnchor')||0);
@@ -603,7 +636,7 @@ function launchExternalMap(kind){
 }
 function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,duration:500})}
 function updateMapThemeButtons(){const d=document.getElementById('mapThemeDark'),l=document.getElementById('mapThemeLight');if(d)d.classList.toggle('active',mapTheme==='dark');if(l)l.classList.toggle('active',mapTheme==='light')}
-function setMapTheme(theme){if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();return}mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();map.setStyle(MAP_STYLES[mapTheme]);map.once('style.load',()=>{try{restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}map.jumpTo({center,zoom,pitch,bearing});drawMarkers()})}
+function setMapTheme(theme){if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();return}mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();map.setStyle(MAP_STYLES[mapTheme]);map.once('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}map.jumpTo({center,zoom,pitch,bearing});drawMarkers()})}
 function hav(a,b){const R=6371,toR=x=>x*Math.PI/180,dLat=toR(b.lat-a.lat),dLng=toR(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function slotPriority(slot){if(!slot||slot==='なし')return 999;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),map={'午前中':[0,720],'12-14時':[720,840],'14-16時':[840,960],'16-18時':[960,1080],'18-20時':[1080,1200],'19-21時':[1140,1260],'20-21時':[1200,1260]},w=map[slot];if(!w)return 999;if(mins>w[1])return 50+(mins-w[1])/60;if(mins>=w[0])return 0;return Math.max(1,(w[0]-mins)/60)}
 function findNextOperationalStop(origin=userPos){const list=stops.filter(s=>(s.status||'undelivered')==='undelivered'&&Number.isFinite(s.lat)&&Number.isFinite(s.lng));if(!list.length)return null;let best=null,score=Infinity;for(const s of list){const d=origin?hav(origin,s):0,p=slotPriority(s.timeSlot);const sc=p*5+d;if(sc<score){score=sc;best=s}}return best}
