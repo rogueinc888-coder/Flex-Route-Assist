@@ -299,6 +299,12 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 
 
 .search-ref{background:#07121c!important}.search-top{background:#0b2a3a!important}.section-title{background:#0c1d29!important;color:#aebdca!important}.manual-address-box{padding:16px 18px 26px;background:#07121c}.manual-address-box>input{width:100%;box-sizing:border-box;margin:0 0 10px;padding:13px 14px;border:1px solid #355b72;border-radius:12px;background:#0b1c28;color:#fff;font-size:16px}.manual-address-box>input::placeholder{color:#91a3b2}.manual-meta-row{display:flex;gap:10px;margin:4px 0 10px}.manual-meta-row label{color:#dce8f0;font-weight:700}.manual-meta-row input{width:76px;margin-left:8px;padding:8px;border:1px solid #355b72;border-radius:9px;background:#0b1c28;color:#fff}.manual-time-label{color:#dce8f0;font-weight:800;margin:10px 0 8px}.manual-slots{margin-top:0}.manual-register-btn{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:#2b8cff;color:#fff;font-size:17px;font-weight:900}.manual-geo-status{min-height:22px;margin-top:10px;color:#8ee5b4;font-size:14px}.slot[data-slot="なし"]{background:#45515d!important;color:#fff!important}.slot[data-slot="午前中"]{background:#ff9f0a!important;color:#101010!important}.slot[data-slot="12-14時"]{background:#ffd60a!important;color:#101010!important}.slot[data-slot="14-16時"]{background:#34c759!important;color:#fff!important}.slot[data-slot="16-18時"]{background:#00c7be!important;color:#082b2a!important}.slot[data-slot="18-20時"]{background:#0a84ff!important;color:#fff!important}.slot[data-slot="19-21時"]{background:#5856d6!important;color:#fff!important}.slot[data-slot="20-21時"]{background:#af52de!important;color:#fff!important}.slot.active{outline:3px solid #fff;outline-offset:-3px}.maplibregl-map.night-map{background:#263746!important}
+
+/* v36 voice navigation */
+.route-preview-btn.nav-active{background:#ff453a!important;color:#fff!important}
+#navVoiceHint{display:none;font-size:10px;color:#9fdcff;text-align:center;padding:0 10px 6px}
+#navVoiceHint.show{display:block}
+
 </style>
 </head>
 <body class="main-active">
@@ -324,7 +330,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
       <div><h3 id="routeSheetTitle">次の目的地</h3><div id="routeStats" class="route-stats">— 分・— km</div><div id="routeWindow" class="route-time">時間指定なし</div></div>
     </div>
     <div id="packageInfo" class="package-info"></div>
-    <div class="route-actions"><button id="routePrimaryBtn" class="route-preview-btn" onclick="routePrimaryAction()">ルートプレビュー</button><button class="route-open-btn" onclick="openSelectedExternalMap()" aria-label="他の地図アプリで開く">↗</button></div>
+    <div class="route-actions"><button id="routePrimaryBtn" class="route-preview-btn" onclick="routePrimaryAction()">ルートプレビュー</button><button class="route-open-btn" onclick="openSelectedExternalMap()" aria-label="他の地図アプリで開く">↗</button></div><div id="navVoiceHint">音声ガイダンス ON ・ ボタンを押すとナビ終了</div>
   </div>
 </section>
 
@@ -426,7 +432,7 @@ function applyNightPalette(){
     else if(layer.type==='raster'){safe(layer.id,'raster-opacity',0.82);safe(layer.id,'raster-brightness-min',0.18);safe(layer.id,'raster-brightness-max',0.88);safe(layer.id,'raster-saturation',-0.25);}
   }
 }
-let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false;
+let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false,navigationSteps=[],navigationStepIndex=0,lastSpokenStep=-1,lastVoiceAt=0,lastRerouteAt=0,navigationRouteCoords=[],arrivalAnnounced=false;
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
 function loadMetrics(){try{return JSON.parse(localStorage.getItem(METRICS)||'{}')}catch{return {}}}
 function saveMetrics(){localStorage.setItem(METRICS,JSON.stringify(metrics))}
@@ -520,10 +526,7 @@ function updateUserPosition(p,recenter=false){
         const remain=distanceMeters(userPos,target);
         const stats=document.getElementById('routeStats');
         if(stats&&remain<80)stats.textContent=`目的地まで 約${Math.max(1,Math.round(remain))} m`;
-        if(remain<25){
-          const b=document.getElementById('routePrimaryBtn');
-          if(b){b.textContent='目的地付近です';b.disabled=true}
-        }
+        handleNavigationProgress(next,target);
       }
     }else{
       map.easeTo({center:[userPos.lng,userPos.lat],bearing:targetBearing,duration:350});
@@ -668,11 +671,14 @@ function addRouteLine(geometry){clearRouteLine();map.addSource('route-preview',{
 function updateRoutePrimaryButton(){
   const btn=document.getElementById('routePrimaryBtn');if(!btn)return;
   btn.disabled=false;
-  if(navigationActive){btn.textContent='ナビ中';return}
+  const hint=document.getElementById('navVoiceHint');
+  btn.classList.toggle('nav-active',navigationActive);
+  if(hint)hint.classList.toggle('show',navigationActive);
+  if(navigationActive){btn.textContent='ナビ中・タップで終了';return}
   btn.textContent=routeReady?'移動します':'ルートプレビュー';
 }
 async function routePrimaryAction(){
-  if(navigationActive)return;
+  if(navigationActive){stopNavigation(true);return}
   if(routeReady){startNavigation();return}
   await previewShortestRoute();
 }
@@ -687,12 +693,15 @@ async function previewShortestRoute(){
   const btn=document.getElementById('routePrimaryBtn');if(btn){btn.disabled=true;btn.textContent='検索中…'}
   try{
     const [r1,r2]=await Promise.all([
-      fetch(`https://router.project-osrm.org/route/v1/driving/${firstCoords}?overview=false&steps=false`),
+      fetch(`https://router.project-osrm.org/route/v1/driving/${firstCoords}?overview=full&geometries=geojson&steps=true`),
       fetch(`https://router.project-osrm.org/route/v1/driving/${allCoords}?overview=full&geometries=geojson&steps=true`)
     ]);
     const j1=await r1.json(),j2=await r2.json();if(!j1.routes?.[0]||!j2.routes?.[0])throw new Error('route');
     const leg=j1.routes[0],full=j2.routes[0];
     document.getElementById('routeStats').textContent=`${Math.max(1,Math.round(leg.duration/60))} 分・${formatKm(leg.distance)}`;
+    navigationSteps=(leg.legs||[]).flatMap(x=>x.steps||[]);
+    navigationStepIndex=0;lastSpokenStep=-1;arrivalAnnounced=false;
+    navigationRouteCoords=leg.geometry?.coordinates||[];
     routePreviewActive=true;routeReady=true;addRouteLine(full.geometry);
     const coords=full.geometry.coordinates,b=new maplibregl.LngLatBounds(coords[0],coords[0]);coords.forEach(c=>b.extend(c));followMode=false;map.fitBounds(b,{padding:{top:115,bottom:105,left:40,right:72},duration:700,maxZoom:17.8});
     renderRouteSheet();
@@ -700,16 +709,122 @@ async function previewShortestRoute(){
     const d=hav(origin,target)*1000,mins=Math.max(1,Math.round(d/350));document.getElementById('routeStats').textContent=`約${mins} 分・${formatKm(d)}`;routePreviewActive=true;routeReady=true;
   }finally{updateRoutePrimaryButton()}
 }
+function speakNavigation(text,force=false){
+  if(!text||!('speechSynthesis' in window))return;
+  const now=Date.now();if(!force&&now-lastVoiceAt<3500)return;
+  try{
+    if(force)window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='ja-JP';u.rate=1.0;u.pitch=1.0;u.volume=1.0;
+    const voices=window.speechSynthesis.getVoices?.()||[];
+    const ja=voices.find(v=>String(v.lang||'').toLowerCase().startsWith('ja'));
+    if(ja)u.voice=ja;
+    window.speechSynthesis.speak(u);lastVoiceAt=now;
+  }catch(e){}
+}
+function navInstruction(step){
+  if(!step)return '';
+  const m=step.maneuver||{},type=m.type||'',mod=m.modifier||'',road=(step.name||'').trim();
+  let action='';
+  if(type==='depart')action='出発します';
+  else if(type==='arrive')action='目的地です';
+  else if(type==='roundabout'||type==='rotary')action='ロータリーに進入してください';
+  else if(type==='merge')action='合流してください';
+  else if(type==='fork')action=mod.includes('left')?'左方向へ進んでください':'右方向へ進んでください';
+  else if(type==='on ramp')action='ランプへ進んでください';
+  else if(type==='off ramp')action='ランプを降りてください';
+  else if(type==='continue')action='そのまま直進してください';
+  else if(mod.includes('uturn'))action='Uターンしてください';
+  else if(mod.includes('sharp left'))action='大きく左折してください';
+  else if(mod.includes('sharp right'))action='大きく右折してください';
+  else if(mod.includes('slight left'))action='斜め左方向へ進んでください';
+  else if(mod.includes('slight right'))action='斜め右方向へ進んでください';
+  else if(mod.includes('left'))action='左折してください';
+  else if(mod.includes('right'))action='右折してください';
+  else action='直進してください';
+  if(road&&type!=='arrive'&&type!=='depart')action+=`。${road}方面です`;
+  return action;
+}
+function stepLocation(step){
+  const p=step?.maneuver?.location;
+  return Array.isArray(p)&&p.length>=2?{lng:Number(p[0]),lat:Number(p[1])}:null;
+}
+function distanceToRoute(pos){
+  if(!pos||!navigationRouteCoords?.length)return Infinity;
+  let min=Infinity,step=Math.max(1,Math.floor(navigationRouteCoords.length/180));
+  for(let i=0;i<navigationRouteCoords.length;i+=step){
+    const c=navigationRouteCoords[i],d=distanceMeters(pos,{lat:c[1],lng:c[0]});if(d<min)min=d;
+  }
+  return min;
+}
+async function refreshNavigationRoute(){
+  const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
+  if(!navigationActive||!userPos||!target||!Number.isFinite(target.lat)||!Number.isFinite(target.lng))return;
+  const now=Date.now();if(now-lastRerouteAt<15000)return;lastRerouteAt=now;
+  try{
+    const coords=`${userPos.lng},${userPos.lat};${target.lng},${target.lat}`;
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=true`);
+    const j=await r.json();const route=j.routes?.[0];if(!route)return;
+    navigationSteps=(route.legs||[]).flatMap(x=>x.steps||[]);
+    navigationStepIndex=0;lastSpokenStep=-1;navigationRouteCoords=route.geometry?.coordinates||[];
+    addRouteLine(route.geometry);
+    const stats=document.getElementById('routeStats');
+    if(stats)stats.textContent=`${Math.max(1,Math.round(route.duration/60))} 分・${formatKm(route.distance)}`;
+    speakNavigation('ルートを再検索しました',true);
+  }catch(e){}
+}
+function handleNavigationProgress(pos,target){
+  if(!navigationActive||!pos||!target)return;
+  const remain=distanceMeters(pos,target);
+  const stats=document.getElementById('routeStats');
+  if(stats)stats.textContent=remain<1000?`目的地まで 約${Math.max(1,Math.round(remain))} m`:`目的地まで 約${(remain/1000).toFixed(1)} km`;
+
+  if(remain<30&&!arrivalAnnounced){
+    arrivalAnnounced=true;
+    speakNavigation('目的地付近です',true);
+  }
+
+  if(navigationSteps.length){
+    let idx=Math.min(navigationStepIndex,navigationSteps.length-1);
+    let loc=stepLocation(navigationSteps[idx]);
+    let d=loc?distanceMeters(pos,loc):Infinity;
+    while(idx<navigationSteps.length-1&&d<22){
+      idx++;navigationStepIndex=idx;loc=stepLocation(navigationSteps[idx]);d=loc?distanceMeters(pos,loc):Infinity;
+    }
+    const step=navigationSteps[idx];
+    const instruction=navInstruction(step);
+    if(instruction){
+      if(d<95&&lastSpokenStep!==idx){
+        speakNavigation(`まもなく、${instruction}`,true);lastSpokenStep=idx;
+      }else if(d<260&&lastSpokenStep!==idx&&Date.now()-lastVoiceAt>12000){
+        speakNavigation(`${Math.max(50,Math.round(d/50)*50)}メートル先、${instruction}`);lastSpokenStep=idx;
+      }
+    }
+  }
+
+  if(distanceToRoute(pos)>85)refreshNavigationRoute();
+}
 function startNavigation(){
   const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
   if(!target||!routeReady){routeReady=false;updateRoutePrimaryButton();return}
-  navigationActive=true;followMode=true;sheetExpanded=false;toggleRouteSheet(false);updateRoutePrimaryButton();
+  navigationActive=true;followMode=true;sheetExpanded=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;
+  toggleRouteSheet(false);updateRoutePrimaryButton();
+  speakNavigation('ナビを開始します',true);
+  setTimeout(()=>{
+    const first=navigationSteps.find(s=>navInstruction(s));
+    if(first)speakNavigation(navInstruction(first),true);
+  },700);
   if(userPos){
     const mode=HEADING_ANCHORS[headingAnchorIndex];const targetBearing=((userHeading-mode.deg)+360)%360;
     map.easeTo({center:[userPos.lng,userPos.lat],bearing:targetBearing,zoom:18.2,pitch:48,duration:500});
   }
 }
-function stopNavigation(){navigationActive=false;routeReady=false;navigationTargetId=null;updateRoutePrimaryButton()}
+function stopNavigation(speak=true){
+  navigationActive=false;followMode=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;
+  try{window.speechSynthesis?.cancel()}catch(e){}
+  if(speak)speakNavigation('ナビを終了しました',true);
+  updateRoutePrimaryButton();
+}
 function startPinCorrection(){
   const s=stops.find(x=>x.id===selectedId);if(!s||!Number.isFinite(s.lng)||!Number.isFinite(s.lat))return;
   correctionMode=true;toggleRouteSheet(false);followMode=false;
