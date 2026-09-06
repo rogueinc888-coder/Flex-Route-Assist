@@ -297,6 +297,8 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 #timeSlots .slot.active{opacity:1!important;border-color:#fff!important;box-shadow:0 0 0 2px rgba(31,182,235,.8)!important}
 .time-pin-legend{display:none!important}
 
+
+.search-ref{background:#07121c!important}.search-top{background:#0b2a3a!important}.section-title{background:#0c1d29!important;color:#aebdca!important}.manual-address-box{padding:16px 18px 26px;background:#07121c}.manual-address-box>input{width:100%;box-sizing:border-box;margin:0 0 10px;padding:13px 14px;border:1px solid #355b72;border-radius:12px;background:#0b1c28;color:#fff;font-size:16px}.manual-address-box>input::placeholder{color:#91a3b2}.manual-meta-row{display:flex;gap:10px;margin:4px 0 10px}.manual-meta-row label{color:#dce8f0;font-weight:700}.manual-meta-row input{width:76px;margin-left:8px;padding:8px;border:1px solid #355b72;border-radius:9px;background:#0b1c28;color:#fff}.manual-time-label{color:#dce8f0;font-weight:800;margin:10px 0 8px}.manual-slots{margin-top:0}.manual-register-btn{width:100%;margin-top:14px;padding:14px;border:0;border-radius:12px;background:#2b8cff;color:#fff;font-size:17px;font-weight:900}.manual-geo-status{min-height:22px;margin-top:10px;color:#8ee5b4;font-size:14px}.slot[data-slot="なし"]{background:#45515d!important;color:#fff!important}.slot[data-slot="午前中"]{background:#ff9f0a!important;color:#101010!important}.slot[data-slot="12-14時"]{background:#ffd60a!important;color:#101010!important}.slot[data-slot="14-16時"]{background:#34c759!important;color:#fff!important}.slot[data-slot="16-18時"]{background:#00c7be!important;color:#082b2a!important}.slot[data-slot="18-20時"]{background:#0a84ff!important;color:#fff!important}.slot[data-slot="19-21時"]{background:#5856d6!important;color:#fff!important}.slot[data-slot="20-21時"]{background:#af52de!important;color:#fff!important}.slot.active{outline:3px solid #fff;outline-offset:-3px}.maplibregl-map.night-map{background:#263746!important}
 </style>
 </head>
 <body class="main-active">
@@ -366,7 +368,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 <section id="searchView" class="view search-ref">
   <div class="search-top"><button class="search-back" onclick="goBack()">‹</button><div class="search-field"><input id="addressSearchInput" placeholder="郵便番号(7桁)/住所で探す" enterkeyhint="search" onkeydown="if(event.key==='Enter')searchAddressAndAdd()"><button class="search-submit" onclick="searchAddressAndAdd()">〒</button></div></div>
   <div class="section-title">現在地</div><div class="address-row"><span>➤</span><button id="currentAddressRow" onclick="useCurrentLocationAddress()">現在地を取得</button><span class="chev">›</span></div>
-  <div class="section-title">住所を手入力</div><div class="manual-address-box"><input id="manualAddress" placeholder="例：神奈川県平塚市中堂11-10"><input id="manualBuilding" placeholder="建物名・部屋番号（任意）"><button onclick="addManualAddress()">この住所を登録</button></div>
+  <div class="section-title">住所を手入力</div><div class="manual-address-box"><input id="manualAddress" placeholder="例：神奈川県平塚市徳延3-3-55"><input id="manualBuilding" placeholder="建物名・部屋番号（任意）"><div class="manual-meta-row"><label>荷物個数 <input id="manualPackageCount" type="number" min="1" value="1"></label></div><div class="manual-time-label">配達希望時間（任意）</div><div class="slots manual-slots" id="manualTimeSlots"><button class="slot active" data-slot="なし" onclick="selectManualTimeSlot(event)">なし</button><button class="slot" data-slot="午前中" onclick="selectManualTimeSlot(event)">午前中</button><button class="slot" data-slot="12-14時" onclick="selectManualTimeSlot(event)">12–14時</button><button class="slot" data-slot="14-16時" onclick="selectManualTimeSlot(event)">14–16時</button><button class="slot" data-slot="16-18時" onclick="selectManualTimeSlot(event)">16–18時</button><button class="slot" data-slot="18-20時" onclick="selectManualTimeSlot(event)">18–20時</button><button class="slot" data-slot="19-21時" onclick="selectManualTimeSlot(event)">19–21時</button><button class="slot" data-slot="20-21時" onclick="selectManualTimeSlot(event)">20–21時</button></div><button class="manual-register-btn" onclick="addManualAddress()">登録する</button><div id="manualGeoStatus" class="manual-geo-status" aria-live="polite"></div></div>
   <div class="section-title">お気に入り住所</div><div id="favoriteAddressRows"></div>
   <div class="section-title">検索履歴</div><div id="historyRows"></div>
 </section>
@@ -397,7 +399,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v33 Night Map</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v34 Night Address Fix</div>
   </div>
 </section>
 
@@ -405,46 +407,23 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 <div id="autoNextToast" class="auto-next-toast"></div>
 <script>
 const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1';
-const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/dark',light:'https://tiles.openfreemap.org/styles/positron'};
+const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/liberty',light:'https://tiles.openfreemap.org/styles/positron'};
 let mapTheme=localStorage.getItem(MAP_THEME_KEY)||'light'; if(!MAP_STYLES[mapTheme])mapTheme='light';
-// v33: darkテーマを真っ黒ではなく、建物・道路・地名が判別しやすい薄いナイトモードへ調整。
+// v34: 明るめのブルーグレー・ナイトモード。建物・道路・地名を見失わない配色にする。
 function applyNightPalette(){
   if(mapTheme!=='dark'||!map||!map.isStyleLoaded())return;
   const layers=(map.getStyle()&&map.getStyle().layers)||[];
   const safe=(id,prop,val)=>{try{map.setPaintProperty(id,prop,val)}catch(e){}};
+  try{map.getCanvas().style.backgroundColor='#263746'}catch(e){}
   for(const layer of layers){
-    const id=(layer.id||'').toLowerCase();
-    const sl=String(layer['source-layer']||'').toLowerCase();
-    const key=id+' '+sl;
-    if(layer.type==='background'){
-      safe(layer.id,'background-color','#2a3947');
-      safe(layer.id,'background-opacity',1);
-    }else if(layer.type==='fill'){
-      let c='#314451';
-      if(/water|ocean|river|lake/.test(key))c='#203f50';
-      else if(/park|wood|forest|grass|landcover|landuse/.test(key))c='#304b46';
-      else if(/building/.test(key))c='#4b5d6b';
-      safe(layer.id,'fill-color',c);
-      safe(layer.id,'fill-opacity',0.90);
-      safe(layer.id,'fill-outline-color',/building/.test(key)?'#748695':'#465a68');
-    }else if(layer.type==='line'){
-      let c='#607482';
-      if(/motorway|trunk|primary/.test(key))c='#788b98';
-      else if(/road|street|highway|transportation/.test(key))c='#687d8c';
-      else if(/rail/.test(key))c='#82929d';
-      else if(/boundary/.test(key))c='#516674';
-      safe(layer.id,'line-color',c);
-      safe(layer.id,'line-opacity',0.92);
-    }else if(layer.type==='symbol'){
-      safe(layer.id,'text-color','#e2e9ee');
-      safe(layer.id,'text-halo-color','#263744');
-      safe(layer.id,'text-halo-width',1.2);
-      safe(layer.id,'text-opacity',0.96);
-      safe(layer.id,'icon-opacity',0.92);
-    }else if(layer.type==='fill-extrusion'){
-      safe(layer.id,'fill-extrusion-color','#566977');
-      safe(layer.id,'fill-extrusion-opacity',0.80);
-    }
+    const id=(layer.id||'').toLowerCase(); const sl=String(layer['source-layer']||'').toLowerCase(); const key=id+' '+sl;
+    if(layer.type==='background'){safe(layer.id,'background-color','#263746');safe(layer.id,'background-opacity',1);}
+    else if(layer.type==='fill'){let c='#334957';if(/water|ocean|river|lake/.test(key))c='#214a5d';else if(/park|wood|forest|grass|landcover|landuse/.test(key))c='#34514b';else if(/building/.test(key))c='#536879';else if(/residential|commercial|industrial/.test(key))c='#3a5060';safe(layer.id,'fill-color',c);safe(layer.id,'fill-opacity',0.94);safe(layer.id,'fill-outline-color',/building/.test(key)?'#8295a4':'#526978');}
+    else if(layer.type==='line'){let c='#718796';if(/motorway|trunk|primary/.test(key))c='#9bafbd';else if(/road|street|highway|transportation/.test(key))c='#8196a5';else if(/rail/.test(key))c='#a3b3be';else if(/boundary/.test(key))c='#627988';else if(/water/.test(key))c='#4c7c91';safe(layer.id,'line-color',c);safe(layer.id,'line-opacity',0.96);}
+    else if(layer.type==='symbol'){safe(layer.id,'text-color','#ffffff');safe(layer.id,'text-halo-color','#1b2b38');safe(layer.id,'text-halo-width',1.6);safe(layer.id,'text-halo-blur',0.25);safe(layer.id,'text-opacity',1);safe(layer.id,'icon-opacity',0.98);}
+    else if(layer.type==='fill-extrusion'){safe(layer.id,'fill-extrusion-color','#607688');safe(layer.id,'fill-extrusion-opacity',0.82);}
+    else if(layer.type==='hillshade'){safe(layer.id,'hillshade-shadow-color','#172630');safe(layer.id,'hillshade-highlight-color','#637b8b');safe(layer.id,'hillshade-accent-color','#3e5565');}
+    else if(layer.type==='raster'){safe(layer.id,'raster-opacity',0.82);safe(layer.id,'raster-brightness-min',0.18);safe(layer.id,'raster-brightness-max',0.88);safe(layer.id,'raster-saturation',-0.25);}
   }
 }
 let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,sheetExpanded=false;
@@ -459,10 +438,10 @@ const map=new maplibregl.Map({container:'map',style:MAP_STYLES[mapTheme],center:
 function restoreBuildingOverlays(){
   const style=map.getStyle();
   const srcId=Object.keys(style.sources||{}).find(k=>style.sources[k].type==='vector');
-  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':mapTheme==='dark'?'#5a6b78':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
+  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':mapTheme==='dark'?'#647b8c':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
   if(!map.getSource('gsi-buildings'))map.addSource('gsi-buildings',{type:'vector',tiles:['https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'],minzoom:4,maxzoom:16,attribution:'<a href=\"https://maps.gsi.go.jp/vector/\" target=\"_blank\">地理院地図Vector</a>'});
-  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':mapTheme==='dark'?'#4c5e6b':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':mapTheme==='dark'?'#7b8c98':'#9e9a92'}});
-  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':mapTheme==='dark'?'#566875':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
+  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':mapTheme==='dark'?'#596f80':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':mapTheme==='dark'?'#91a4b1':'#9e9a92'}});
+  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':mapTheme==='dark'?'#647b8b':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
 }
 // 自動追従は初期状態ON。ユーザーが地図を動かす/ピンチズームした時だけOFF。現在地ボタンで再開。
 map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
@@ -635,8 +614,9 @@ function launchExternalMap(kind){
   }
 }
 function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,duration:500})}
+function updateMapCanvasTheme(){const el=document.getElementById('map');if(el)el.classList.toggle('night-map',mapTheme==='dark')}
 function updateMapThemeButtons(){const d=document.getElementById('mapThemeDark'),l=document.getElementById('mapThemeLight');if(d)d.classList.toggle('active',mapTheme==='dark');if(l)l.classList.toggle('active',mapTheme==='light')}
-function setMapTheme(theme){if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();return}mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();map.setStyle(MAP_STYLES[mapTheme]);map.once('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}map.jumpTo({center,zoom,pitch,bearing});drawMarkers()})}
+function setMapTheme(theme){if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();updateMapCanvasTheme();return}mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();updateMapCanvasTheme();const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();map.setStyle(MAP_STYLES[mapTheme]);map.once('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}map.jumpTo({center,zoom,pitch,bearing});drawMarkers()})}
 function hav(a,b){const R=6371,toR=x=>x*Math.PI/180,dLat=toR(b.lat-a.lat),dLng=toR(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function slotPriority(slot){if(!slot||slot==='なし')return 999;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),map={'午前中':[0,720],'12-14時':[720,840],'14-16時':[840,960],'16-18時':[960,1080],'18-20時':[1080,1200],'19-21時':[1140,1260],'20-21時':[1200,1260]},w=map[slot];if(!w)return 999;if(mins>w[1])return 50+(mins-w[1])/60;if(mins>=w[0])return 0;return Math.max(1,(w[0]-mins)/60)}
 function findNextOperationalStop(origin=userPos){const list=stops.filter(s=>(s.status||'undelivered')==='undelivered'&&Number.isFinite(s.lat)&&Number.isFinite(s.lng));if(!list.length)return null;let best=null,score=Infinity;for(const s of list){const d=origin?hav(origin,s):0,p=slotPriority(s.timeSlot);const sc=p*5+d;if(sc<score){score=sc;best=s}}return best}
@@ -698,8 +678,10 @@ function previewPhoto(e){const f=e.target.files?.[0];if(!f)return;const img=docu
 let selectedTimeSlot='なし';
 let scanMode=localStorage.getItem('flexScanMode')||'single';
 function setScanMode(mode,e){if(e){e.preventDefault();e.stopPropagation()}scanMode=mode==='continuous'?'continuous':'single';localStorage.setItem('flexScanMode',scanMode);document.getElementById('singleScanBtn')?.classList.toggle('active',scanMode==='single');document.getElementById('continuousScanBtn')?.classList.toggle('active',scanMode==='continuous');const st=document.getElementById('ocrStatus');if(st)st.textContent=scanMode==='continuous'?'連続モード：登録後もこの画面に残り、次の伝票を続けて読み取れます。':'単発モード：登録後は荷物一覧へ移動します。';}
-function resetPhotoEntry(){const a=document.getElementById('ocrAddress'),b=document.getElementById('ocrBuilding'),m=document.getElementById('ocrMemo'),pc=document.getElementById('ocrPackageCount'),pi=document.getElementById('photoInput'),pr=document.getElementById('preview');if(a)a.value='';if(b)b.value='';if(m)m.value='';if(pc)pc.value='1';if(pi)pi.value='';if(pr)pr.style.display='none';['ocrDropoff','ocrLocker','ocrAutolock'].forEach(id=>{const x=document.getElementById(id);if(x)x.checked=false});document.querySelector('.camera-placeholder')?.style.setProperty('display','flex');selectedTimeSlot='なし';document.querySelectorAll('.slot').forEach((x,i)=>x.classList.toggle('active',i===0));}
-function selectTimeSlot(e){e.preventDefault();document.querySelectorAll('.slot').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');selectedTimeSlot=e.currentTarget.dataset.slot||'なし'}
+function resetPhotoEntry(){const a=document.getElementById('ocrAddress'),b=document.getElementById('ocrBuilding'),m=document.getElementById('ocrMemo'),pc=document.getElementById('ocrPackageCount'),pi=document.getElementById('photoInput'),pr=document.getElementById('preview');if(a)a.value='';if(b)b.value='';if(m)m.value='';if(pc)pc.value='1';if(pi)pi.value='';if(pr)pr.style.display='none';['ocrDropoff','ocrLocker','ocrAutolock'].forEach(id=>{const x=document.getElementById(id);if(x)x.checked=false});document.querySelector('.camera-placeholder')?.style.setProperty('display','flex');selectedTimeSlot='なし';document.querySelectorAll('#timeSlots .slot').forEach((x,i)=>x.classList.toggle('active',i===0));}
+let manualTimeSlot='なし';
+function selectTimeSlot(e){e.preventDefault();document.querySelectorAll('#timeSlots .slot').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');selectedTimeSlot=e.currentTarget.dataset.slot||'なし'}
+function selectManualTimeSlot(e){e.preventDefault();document.querySelectorAll('#manualTimeSlots .slot').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');manualTimeSlot=e.currentTarget.dataset.slot||'なし'}
 const HIST='flexAddressHistoryV1',FAV='flexAddressFavoritesV1';
 function getArr(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return []}}
 function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -714,7 +696,7 @@ function mergeIfDuplicate(candidate){const key=normalizeAddressKey(candidate.add
 async function quickUseAddress(enc){const a=decodeURIComponent(enc);const inp=document.getElementById('addressSearchInput');if(inp)inp.value=a;await searchAddressAndAdd()}
 async function searchAddressAndAdd(){
   const inp=document.getElementById('addressSearchInput');const raw=(inp?.value||'').trim();if(!raw){alert('住所または郵便番号を入力してください');return}
-  const pos=await geocode(raw);if(!pos){alert('場所を特定できませんでした。住所を詳しく入力してください。');return}
+  const pos=await geocode(raw);if(!pos){alert('住所の位置を取得できませんでした。番地まで確認してもう一度検索してください。');return}
   rememberAddress(raw);const s={id:uid(),address:formatJapaneseAddress(raw),name:'',memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:'なし',lat:pos.lat,lng:pos.lng,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('ocrPackageCount')?.value||1))};if(mergeIfDuplicate(s)){openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});openView('mainView',false)
 }
 async function useCurrentLocationAddress(){
@@ -725,9 +707,12 @@ async function useCurrentLocationAddress(){
 async function runOCR(){const f=photoInput.files?.[0];if(!f){alert('先に写真を選んでください');return}const btn=ocrBtn;btn.classList.add('loading');btn.textContent='読み取り中…';ocrStatus.textContent='画像を解析しています。少し時間がかかる場合があります。';try{if(!window.Tesseract){await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js')}const r=await Tesseract.recognize(f,'jpn+eng',{logger:m=>{if(m.status==='recognizing text')ocrStatus.textContent=`読み取り中 ${Math.round((m.progress||0)*100)}%`}});const text=(r.data.text||'').replace(/\s+/g,' ').trim();const addr=extractJapaneseAddress(text);ocrAddress.value=addr||text;ocrStatus.textContent=addr?'住所候補を抽出しました。必ず確認・修正してください。':'文字は読み取れました。住所部分だけになるよう修正してください。'}catch(e){ocrStatus.textContent='自動読み取りに失敗しました。住所を手入力してください。'}finally{btn.classList.remove('loading');btn.textContent='住所を読み取る'}}
 function extractJapaneseAddress(t){const m=t.match(/(?:〒?\d{3}-?\d{4}\s*)?((?:東京都|北海道|(?:京都|大阪)府|.{2,3}県).{2,40}?(?:\d+[丁目番地号\-−ー]\s*){1,5})/);return m?m[1].replace(/\s+/g,''):''}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
-async function geocode(addr){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=${encodeURIComponent(addr)}`,{headers:{'Accept-Language':'ja'}});const j=await r.json();if(j[0])return{lat:+j[0].lat,lng:+j[0].lon}}catch{}return null}
+function geocodeCandidates(addr){const a=String(addr||'').trim().replace(/[‐‑‒–—―−ーｰ]/g,'-').replace(/[　\s]+/g,'');const list=[a,formatJapaneseAddress(a)];const hyphen=a.replace(/(\d+)丁目/g,'$1-').replace(/(\d+)番(?:地)?/g,'$1-').replace(/(\d+)号/g,'$1').replace(/-+/g,'-');list.push(hyphen);const m=hyphen.match(/^(.*?)(\d+)-(\d+)-(\d+)(.*)$/);if(m){list.push(`${m[1]}${m[2]}-${m[3]}`);list.push(`${m[1]}${m[2]}`)}return [...new Set(list.filter(Boolean))]}
+async function geocodeNominatim(q){try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&addressdetails=1&q=${encodeURIComponent(q)}`,{headers:{'Accept-Language':'ja'}});if(!r.ok)return null;const j=await r.json();if(j&&j[0])return{lat:+j[0].lat,lng:+j[0].lon,source:'nominatim',label:j[0].display_name||q}}catch(e){}return null}
+async function geocodeGSI(q){try{const r=await fetch(`https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(q)}`);if(!r.ok)return null;const j=await r.json();const c=j?.[0]?.geometry?.coordinates;if(Array.isArray(c)&&Number.isFinite(+c[0])&&Number.isFinite(+c[1]))return{lat:+c[1],lng:+c[0],source:'gsi',label:j[0]?.properties?.title||q}}catch(e){}return null}
+async function geocode(addr){for(const q of geocodeCandidates(addr)){const g=await geocodeGSI(q);if(g)return g;const n=await geocodeNominatim(q);if(n)return n}return null}
 async function addStopFromPhoto(){const address=formatJapaneseAddress(ocrAddress.value.trim());if(!address){alert('住所を入力してください');return}const btn=document.querySelector('.photo-actions .register');if(btn){btn.classList.add('loading');btn.textContent='登録中…';}const pos=await geocode(address);const s={id:uid(),address,name:ocrBuilding.value.trim(),memo:ocrMemo.value.trim(),dropoff:ocrDropoff.checked,locker:ocrLocker.checked,autolock:ocrAutolock.checked,status:'undelivered',timeSlot:selectedTimeSlot,lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('ocrPackageCount')?.value||1))};const merged=mergeIfDuplicate(s);if(!merged){stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();}if(btn){btn.classList.remove('loading');btn.textContent='荷物を登録';}resetPhotoEntry();if(pos)map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:600});else alert('住所は登録しましたが、地図上の位置を特定できませんでした。住所を確認してください。');updateAll();if(scanMode==='continuous'){const st=document.getElementById('ocrStatus');if(st)st.textContent='登録しました。続けて次の伝票を撮影してください。';openView('photoView',false);}else{openView('listView',false)}}
-async function addManualAddress(){const a=(document.getElementById('manualAddress')?.value||'').trim();const b=(document.getElementById('manualBuilding')?.value||'').trim();if(!a){alert('住所を入力してください');return}const pos=await geocode(a);const s={id:uid(),address:formatJapaneseAddress(a),name:b,memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:'なし',lat:pos?.lat??null,lng:pos?.lng??null,entry:null,parking:null,packageCount:1};if(mergeIfDuplicate(s)){rememberAddress(a);openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();rememberAddress(a);if(pos)map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});else alert('住所は登録しましたが地図上の位置を特定できませんでした。');openView('mainView',false)}
+async function addManualAddress(){const a=(document.getElementById('manualAddress')?.value||'').trim();const b=(document.getElementById('manualBuilding')?.value||'').trim();const st=document.getElementById('manualGeoStatus');if(!a){alert('住所を入力してください');return}if(st){st.style.color='#8fb4c8';st.textContent='住所を地図上で確認しています…'}const pos=await geocode(a);if(!pos){if(st){st.style.color='#ffb4ab';st.textContent='位置を取得できません。番地まで確認してもう一度登録してください。'}return}const s={id:uid(),address:formatJapaneseAddress(a),name:b,memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:manualTimeSlot,lat:pos.lat,lng:pos.lng,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('manualPackageCount')?.value||1))};if(mergeIfDuplicate(s)){rememberAddress(a);if(st)st.textContent='同じ住所の荷物にまとめました。';openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();rememberAddress(a);updateAll();if(st){st.style.color='#8ee5b4';st.textContent='住所を登録しました。地図上に表示します。'}map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});setTimeout(()=>openView('mainView',false),180)}
 function renderPerformance(){ensureTodayMetrics();const total=stops.length,done=stops.filter(s=>s.status==='done').length,absent=stops.filter(s=>s.status==='absent').length,pending=total-done-absent,packages=stops.reduce((n,s)=>n+Number(s.packageCount||1),0),rate=total?Math.round(done/total*100):0;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('perfDone',done+'件');set('perfAbsent',absent+'件');set('perfPending',pending+'件');set('perfPackages',packages+'個');set('perfStops',total+'件');set('perfRate',rate+'%');set('perfDistance',(Number(metrics.distanceKm||0)).toFixed(1)+' km');set('perfNotice',total?`完了 ${done}件・不在 ${absent}件・未配達 ${pending}件です。`:'配達先を登録すると集計されます。');}
 function setPerfPeriod(period,btn){document.querySelectorAll('.perf-tabs button').forEach(b=>b.classList.remove('active'));btn?.classList.add('active');document.getElementById('perfTitle').textContent=period==='day'?'本日の実績':period==='week'?'今週の実績':'今月の実績';renderPerformance()}
 function renderSettings(){const u=document.getElementById('adminSyncUrl');if(u)u.value=localStorage.getItem(ADMIN_URL)||'';updateMapThemeButtons()}
@@ -740,7 +725,7 @@ async function syncAdminData(){const url=localStorage.getItem(ADMIN_URL)||docume
 function clearAllStops(){if(!stops.length){alert('削除する配達データはありません');return}if(!confirm('登録している配達先・荷物データをすべて削除しますか？'))return;stops=[];selectedId=null;localStorage.removeItem(SEL);saveStops();clearRouteLine();alert('配達データをすべて削除しました');openView('overviewView',false)}
 function coordText(p){return `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-window.addEventListener('load',()=>{ensureTodayMetrics();updateAll();const hb=document.getElementById('headingModeBtn');if(hb){hb.textContent=HEADING_ANCHORS[headingAnchorIndex].label;hb.title=`進行方向：${HEADING_ANCHORS[headingAnchorIndex].name}（タップで切替）`;}history.replaceState({view:'mainView'},'');if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+window.addEventListener('load',()=>{ensureTodayMetrics();updateMapCanvasTheme();updateAll();const hb=document.getElementById('headingModeBtn');if(hb){hb.textContent=HEADING_ANCHORS[headingAnchorIndex].label;hb.title=`進行方向：${HEADING_ANCHORS[headingAnchorIndex].name}（タップで切替）`;}history.replaceState({view:'mainView'},'');if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
 </script>
 
 <div id="mapAppChooser" class="map-app-chooser" onclick="if(event.target===this)closeMapAppChooser()">
