@@ -374,7 +374,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 <section id="searchView" class="view search-ref">
   <div class="search-top"><button class="search-back" onclick="goBack()">‹</button><div class="search-field"><input id="addressSearchInput" placeholder="郵便番号(7桁)/住所で探す" enterkeyhint="search" onkeydown="if(event.key==='Enter')searchAddressAndAdd()"><button class="search-submit" onclick="searchAddressAndAdd()">〒</button></div></div>
   <div class="section-title">現在地</div><div class="address-row"><span>➤</span><button id="currentAddressRow" onclick="useCurrentLocationAddress()">現在地を取得</button><span class="chev">›</span></div>
-  <div class="section-title">住所を手入力</div><div class="manual-address-box"><input id="manualAddress" placeholder="例：神奈川県平塚市徳延3-3-55"><input id="manualBuilding" placeholder="建物名・部屋番号（任意）"><div class="manual-meta-row"><label>荷物個数 <input id="manualPackageCount" type="number" min="1" value="1"></label></div><div class="manual-time-label">配達希望時間（任意）</div><div class="slots manual-slots" id="manualTimeSlots"><button class="slot active" data-slot="なし" onclick="selectManualTimeSlot(event)">なし</button><button class="slot" data-slot="午前中" onclick="selectManualTimeSlot(event)">午前中</button><button class="slot" data-slot="12-14時" onclick="selectManualTimeSlot(event)">12–14時</button><button class="slot" data-slot="14-16時" onclick="selectManualTimeSlot(event)">14–16時</button><button class="slot" data-slot="16-18時" onclick="selectManualTimeSlot(event)">16–18時</button><button class="slot" data-slot="18-20時" onclick="selectManualTimeSlot(event)">18–20時</button><button class="slot" data-slot="19-21時" onclick="selectManualTimeSlot(event)">19–21時</button><button class="slot" data-slot="20-21時" onclick="selectManualTimeSlot(event)">20–21時</button></div><button class="manual-register-btn" onclick="addManualAddress()">登録する</button><div id="manualGeoStatus" class="manual-geo-status" aria-live="polite"></div></div>
+  <div class="section-title">住所を手入力</div><div class="manual-address-box"><input id="manualAddress" placeholder="住所を入力"><input id="manualBuilding" placeholder="建物名・部屋番号（任意）"><div class="manual-meta-row"><label>荷物個数 <input id="manualPackageCount" type="number" min="1" value="1"></label></div><div class="manual-time-label">配達希望時間（任意）</div><div class="slots manual-slots" id="manualTimeSlots"><button class="slot active" data-slot="なし" onclick="selectManualTimeSlot(event)">なし</button><button class="slot" data-slot="午前中" onclick="selectManualTimeSlot(event)">午前中</button><button class="slot" data-slot="12-14時" onclick="selectManualTimeSlot(event)">12–14時</button><button class="slot" data-slot="14-16時" onclick="selectManualTimeSlot(event)">14–16時</button><button class="slot" data-slot="16-18時" onclick="selectManualTimeSlot(event)">16–18時</button><button class="slot" data-slot="18-20時" onclick="selectManualTimeSlot(event)">18–20時</button><button class="slot" data-slot="19-21時" onclick="selectManualTimeSlot(event)">19–21時</button><button class="slot" data-slot="20-21時" onclick="selectManualTimeSlot(event)">20–21時</button></div><button class="manual-register-btn" onclick="addManualAddress()">登録する</button><div id="manualGeoStatus" class="manual-geo-status" aria-live="polite"></div></div>
   <div class="section-title">お気に入り住所</div><div id="favoriteAddressRows"></div>
   <div class="section-title">検索履歴</div><div id="historyRows"></div>
 </section>
@@ -405,7 +405,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v34 Night Address Fix</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v37 Buildings Fast</div>
   </div>
 </section>
 
@@ -440,21 +440,73 @@ function todayKey(){return new Date().toISOString().slice(0,10)}
 function ensureTodayMetrics(){const k=todayKey();if(metrics.date!==k)metrics={date:k,startAt:Date.now(),distanceKm:0,lastDonePos:null,completed:0,absent:0};if(!metrics.startAt)metrics.startAt=Date.now();saveMetrics()}
 function saveStops(){localStorage.setItem(KEY,JSON.stringify(stops));updateAll()}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
-const map=new maplibregl.Map({container:'map',style:MAP_STYLES[mapTheme],center:[139.6152,35.5063],zoom:18.6,pitch:18,bearing:0,antialias:true});
+const map=new maplibregl.Map({container:'map',style:MAP_STYLES[mapTheme],center:[139.6152,35.5063],zoom:17.4,pitch:18,bearing:0,antialias:false,fadeDuration:0});
+let buildingOverlayTimer=null;
+function findBaseBuildingLayer(){
+  const style=map.getStyle()||{};
+  const layers=style.layers||[];
+  return layers.find(l=>l.source && l['source-layer'] && /building/i.test(String(l['source-layer'])))
+      || layers.find(l=>l.source && /building/i.test(String(l.id||'')));
+}
+function addBaseBuildingOverlay(){
+  const layer=findBaseBuildingLayer();
+  if(!layer||!layer.source||!layer['source-layer'])return;
+  try{
+    if(!map.getLayer('custom-building-footprints'))map.addLayer({
+      id:'custom-building-footprints',source:layer.source,'source-layer':layer['source-layer'],type:'fill',minzoom:13,
+      paint:{'fill-color':mapTheme==='dark'?'#657d8e':'#d7d3ca','fill-opacity':mapTheme==='dark'?0.90:0.95,'fill-outline-color':mapTheme==='dark'?'#9fb2bf':'#a6a098'}
+    });
+  }catch(e){console.warn('base building fill',e)}
+  try{
+    if(!map.getLayer('custom-3d-buildings'))map.addLayer({
+      id:'custom-3d-buildings',source:layer.source,'source-layer':layer['source-layer'],type:'fill-extrusion',minzoom:15,
+      paint:{
+        'fill-extrusion-color':mapTheme==='dark'?'#738b9c':'#cec8bd',
+        'fill-extrusion-height':['coalesce',['to-number',['get','render_height']],['to-number',['get','height']],10],
+        'fill-extrusion-base':['coalesce',['to-number',['get','render_min_height']],0],
+        'fill-extrusion-opacity':mapTheme==='dark'?0.88:0.82
+      }
+    });
+  }catch(e){console.warn('base building 3d',e)}
+}
+function addGsiBuildingOverlay(){
+  try{
+    if(!map.getSource('gsi-buildings'))map.addSource('gsi-buildings',{
+      type:'vector',
+      tiles:['https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'],
+      minzoom:4,maxzoom:16,
+      attribution:'<a href="https://maps.gsi.go.jp/vector/" target="_blank">地理院地図Vector</a>'
+    });
+  }catch(e){console.warn('gsi source',e);return}
+  try{
+    if(!map.getLayer('gsi-building-footprints'))map.addLayer({
+      id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,
+      paint:{'fill-color':mapTheme==='dark'?'#60788a':'#d7d2c9','fill-opacity':mapTheme==='dark'?0.92:0.96,'fill-outline-color':mapTheme==='dark'?'#aabcc8':'#9f9991'}
+    });
+  }catch(e){console.warn('gsi building fill',e)}
+  try{
+    if(!map.getLayer('gsi-building-3d'))map.addLayer({
+      id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,
+      paint:{
+        'fill-extrusion-color':mapTheme==='dark'?'#71899a':'#cbc5ba',
+        'fill-extrusion-height':['case',['==',['get','ftCode'],3103],40,['==',['get','ftCode'],3104],26,11],
+        'fill-extrusion-base':0,
+        'fill-extrusion-opacity':mapTheme==='dark'?0.86:0.82
+      }
+    });
+  }catch(e){console.warn('gsi building 3d',e)}
+}
 function restoreBuildingOverlays(){
-  const style=map.getStyle();
-  const srcId=Object.keys(style.sources||{}).find(k=>style.sources[k].type==='vector');
-  if(srcId&&!map.getLayer('custom-3d-buildings'))map.addLayer({id:'custom-3d-buildings',source:srcId,'source-layer':'building',type:'fill-extrusion',minzoom:14,paint:{'fill-extrusion-color':mapTheme==='dark'?'#647b8c':'#d7d1c6','fill-extrusion-height':['coalesce',['get','render_height'],['get','height'],7],'fill-extrusion-base':['coalesce',['get','render_min_height'],0],'fill-extrusion-opacity':0.72}});
-  if(!map.getSource('gsi-buildings'))map.addSource('gsi-buildings',{type:'vector',tiles:['https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf'],minzoom:4,maxzoom:16,attribution:'<a href=\"https://maps.gsi.go.jp/vector/\" target=\"_blank\">地理院地図Vector</a>'});
-  if(!map.getLayer('gsi-building-footprints'))map.addLayer({id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,paint:{'fill-color':mapTheme==='dark'?'#596f80':'#d9d5cd','fill-opacity':0.95,'fill-outline-color':mapTheme==='dark'?'#91a4b1':'#9e9a92'}});
-  if(!map.getLayer('gsi-building-3d'))map.addLayer({id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,paint:{'fill-extrusion-color':mapTheme==='dark'?'#647b8b':'#cfc9be','fill-extrusion-height':['case',['==',['get','ftCode'],3103],36,['==',['get','ftCode'],3104],22,9],'fill-extrusion-base':0,'fill-extrusion-opacity':0.68}});
+  addBaseBuildingOverlay();
+  if(buildingOverlayTimer)clearTimeout(buildingOverlayTimer);
+  buildingOverlayTimer=setTimeout(()=>{if(map.isStyleLoaded())addGsiBuildingOverlay()},220);
 }
 // 自動追従は初期状態ON。ユーザーが地図を動かす/ピンチズームした時だけOFF。現在地ボタンで再開。
 map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
 map.on('zoomstart',e=>{if(e.originalEvent)followMode=false});
 map.on('rotatestart',e=>{if(e.originalEvent)followMode=false});
-map.on('load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('building overlay',e)} drawMarkers(); startLocationWatch();});
-map.on('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('style overlay',e)}});
+map.on('load',()=>{try{applyNightPalette()}catch(e){} drawMarkers(); startLocationWatch(); requestAnimationFrame(()=>restoreBuildingOverlays());});
+map.on('style.load',()=>{try{applyNightPalette()}catch(e){} requestAnimationFrame(()=>restoreBuildingOverlays());});
 let userHeading=0,prevHeadingPos=null,userArrowEl=null;
 const HEADING_ANCHORS=[{deg:0,label:'↑',name:'上'},{deg:90,label:'→',name:'右'},{deg:180,label:'↓',name:'下'},{deg:270,label:'←',name:'左'}];
 let headingAnchorIndex=Number(localStorage.getItem('flexHeadingAnchor')||0);
@@ -633,7 +685,17 @@ function launchExternalMap(kind){
 function zoomIn(){map.zoomIn({duration:350})}function zoomOut(){map.zoomOut({duration:350})}function togglePitch(){pitched=!pitched;map.easeTo({pitch:pitched?48:0,duration:500})}
 function updateMapCanvasTheme(){const el=document.getElementById('map');if(el)el.classList.toggle('night-map',mapTheme==='dark')}
 function updateMapThemeButtons(){const d=document.getElementById('mapThemeDark'),l=document.getElementById('mapThemeLight');if(d)d.classList.toggle('active',mapTheme==='dark');if(l)l.classList.toggle('active',mapTheme==='light')}
-function setMapTheme(theme){if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();updateMapCanvasTheme();return}mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();updateMapCanvasTheme();const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();map.setStyle(MAP_STYLES[mapTheme]);map.once('style.load',()=>{try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}map.jumpTo({center,zoom,pitch,bearing});drawMarkers()})}
+function setMapTheme(theme){
+  if(!MAP_STYLES[theme]||theme===mapTheme){updateMapThemeButtons();updateMapCanvasTheme();return}
+  mapTheme=theme;localStorage.setItem(MAP_THEME_KEY,mapTheme);updateMapThemeButtons();updateMapCanvasTheme();
+  const center=map.getCenter(),zoom=map.getZoom(),pitch=map.getPitch(),bearing=map.getBearing();
+  if(buildingOverlayTimer)clearTimeout(buildingOverlayTimer);
+  map.setStyle(MAP_STYLES[mapTheme],{diff:false});
+  map.once('idle',()=>{
+    try{applyNightPalette();restoreBuildingOverlays()}catch(e){console.warn('theme overlays',e)}
+    map.jumpTo({center,zoom,pitch,bearing});drawMarkers();
+  });
+}
 function hav(a,b){const R=6371,toR=x=>x*Math.PI/180,dLat=toR(b.lat-a.lat),dLng=toR(b.lng-a.lng),x=Math.sin(dLat/2)**2+Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
 function slotPriority(slot){if(!slot||slot==='なし')return 999;const now=new Date(),mins=now.getHours()*60+now.getMinutes(),map={'午前中':[0,720],'12-14時':[720,840],'14-16時':[840,960],'16-18時':[960,1080],'18-20時':[1080,1200],'19-21時':[1140,1260],'20-21時':[1200,1260]},w=map[slot];if(!w)return 999;if(mins>w[1])return 50+(mins-w[1])/60;if(mins>=w[0])return 0;return Math.max(1,(w[0]-mins)/60)}
 function findNextOperationalStop(origin=userPos){const list=stops.filter(s=>(s.status||'undelivered')==='undelivered'&&Number.isFinite(s.lat)&&Number.isFinite(s.lng));if(!list.length)return null;let best=null,score=Infinity;for(const s of list){const d=origin?hav(origin,s):0,p=slotPriority(s.timeSlot);const sc=p*5+d;if(sc<score){score=sc;best=s}}return best}
