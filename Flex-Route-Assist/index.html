@@ -607,7 +607,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v45 Clear Navigation Actions</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v46 Clear Route On Stop</div>
   </div>
 </section>
 
@@ -634,7 +634,7 @@ function applyNightPalette(){
     else if(layer.type==='raster'){safe(layer.id,'raster-opacity',0.82);safe(layer.id,'raster-brightness-min',0.18);safe(layer.id,'raster-brightness-max',0.88);safe(layer.id,'raster-saturation',-0.25);}
   }
 }
-let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false,navigationSteps=[],navigationStepIndex=0,lastSpokenStep=-1,lastVoiceAt=0,lastRerouteAt=0,navigationRouteCoords=[],arrivalAnnounced=false,voiceVolume=Math.max(0,Math.min(1,Number(localStorage.getItem(VOICE_VOL_KEY)??1))),routeMode=localStorage.getItem(ROUTE_MODE_KEY)||'general',vehicleType=localStorage.getItem(VEHICLE_KEY)||'kei',currentRouteDuration=0,currentRouteDistance=0,mapDraftPoint=null,wakeLock=null,routeAlternatives=[],selectedRouteIndex=0,voiceGuideEnabled=true;
+let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false,navigationSteps=[],navigationStepIndex=0,lastSpokenStep=-1,lastVoiceAt=0,lastRerouteAt=0,navigationRouteCoords=[],arrivalAnnounced=false,voiceVolume=Math.max(0,Math.min(1,Number(localStorage.getItem(VOICE_VOL_KEY)??1))),routeMode=localStorage.getItem(ROUTE_MODE_KEY)||'general',vehicleType=localStorage.getItem(VEHICLE_KEY)||'kei',currentRouteDuration=0,currentRouteDistance=0,mapDraftPoint=null,wakeLock=null,routeAlternatives=[],selectedRouteIndex=0,voiceGuideEnabled=true,routeGeneration=0;
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
 function loadMetrics(){try{return JSON.parse(localStorage.getItem(METRICS)||'{}')}catch{return {}}}
 function saveMetrics(){localStorage.setItem(METRICS,JSON.stringify(metrics))}
@@ -1006,15 +1006,18 @@ function toggleRouteSheet(force){
   if(!sheetExpanded&&!navigationActive)document.getElementById('mainView')?.classList.remove('preview-mode');
 }
 function clearRouteLine(){
-  for(const id of ['route-traffic-red','route-traffic-yellow','route-traffic-green','route-line','route-line-outline']){
-    if(map.getLayer(id))map.removeLayer(id);
-  }
-  for(let i=0;i<5;i++){
-    if(map.getLayer(`route-alt-${i}`))map.removeLayer(`route-alt-${i}`);
-    if(map.getSource(`route-alt-src-${i}`))map.removeSource(`route-alt-src-${i}`);
-  }
-  if(map.getSource('route-preview'))map.removeSource('route-preview');
-  if(map.getSource('route-traffic'))map.removeSource('route-traffic');
+  try{
+    const style=map.getStyle()||{};
+    const layerIds=(style.layers||[]).map(l=>l.id).filter(id=>
+      id==='route-line'||id==='route-line-outline'||id==='route-traffic-red'||
+      id==='route-traffic-yellow'||id==='route-traffic-green'||/^route-alt-\d+$/.test(id)
+    );
+    layerIds.reverse().forEach(id=>{try{if(map.getLayer(id))map.removeLayer(id)}catch(e){}});
+    const sourceIds=Object.keys(map.getStyle()?.sources||{}).filter(id=>
+      id==='route-preview'||id==='route-traffic'||/^route-alt-src-\d+$/.test(id)
+    );
+    sourceIds.forEach(id=>{try{if(map.getSource(id))map.removeSource(id)}catch(e){}});
+  }catch(e){}
 }
 function drawAllRoutes(){
   clearRouteLine();
@@ -1260,11 +1263,14 @@ function distanceToRoute(pos){
 async function refreshNavigationRoute(){
   const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
   if(!navigationActive||!userPos||!target||!Number.isFinite(target.lat)||!Number.isFinite(target.lng))return;
+  const myGeneration=routeGeneration;
   const now=Date.now();if(now-lastRerouteAt<15000)return;lastRerouteAt=now;
   try{
     const coords=`${userPos.lng},${userPos.lat};${target.lng},${target.lat}`;
     const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=true`);
-    const j=await r.json();const route=j.routes?.[0];if(!route)return;
+    const j=await r.json();
+    if(!navigationActive||myGeneration!==routeGeneration)return;
+    const route=j.routes?.[0];if(!route)return;
     navigationSteps=(route.legs||[]).flatMap(x=>x.steps||[]);
     navigationStepIndex=0;lastSpokenStep=-1;navigationRouteCoords=route.geometry?.coordinates||[];
     addRouteLine(route.geometry);
@@ -1309,6 +1315,7 @@ function handleNavigationProgress(pos,target){
 function startNavigation(){
   const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
   if(!target||!routeReady){routeReady=false;updateRoutePrimaryButton();return}
+  routeGeneration++;
   navigationActive=true;followMode=true;sheetExpanded=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;saveNavState();requestNavWakeLock();
   document.getElementById('mainView')?.classList.remove('preview-mode');
   document.getElementById('mainView')?.classList.add('navigation-mode');
@@ -1325,6 +1332,7 @@ function startNavigation(){
   }
 }
 function stopNavigation(speak=true){
+  routeGeneration++;
   navigationActive=false;followMode=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;
   routePreviewActive=false;routeReady=false;navigationTargetId=null;
   routeAlternatives=[];selectedRouteIndex=0;navigationSteps=[];navigationRouteCoords=[];
@@ -1332,6 +1340,9 @@ function stopNavigation(speak=true){
   document.getElementById('mainView')?.classList.remove('navigation-mode','preview-mode');
   try{window.speechSynthesis?.cancel()}catch(e){}
   clearRouteLine();
+  // Safety clears catch any stale async callback that was already queued.
+  setTimeout(()=>{if(!navigationActive)clearRouteLine()},80);
+  setTimeout(()=>{if(!navigationActive)clearRouteLine()},350);
   const stats=document.getElementById('routeStats');if(stats)stats.textContent='— 分・— km';
   const eta=document.getElementById('etaText');if(eta)eta.textContent='—';
   const alts=document.getElementById('routeAlternatives');if(alts)alts.innerHTML='';
