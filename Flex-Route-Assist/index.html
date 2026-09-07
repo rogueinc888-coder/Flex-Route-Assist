@@ -436,6 +436,44 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 /* Stronger building footprints while keeping the current light/night palette */
 .maplibregl-map{background:inherit}
 
+
+/* v45: clear route actions */
+.route-actions-v45{
+  grid-template-columns:1fr 1.12fr 1fr!important;
+  gap:7px!important;
+  padding:8px 10px calc(10px + env(safe-area-inset-bottom))!important;
+  background:#071219!important;
+  border-top:1px solid #203744;
+}
+.route-actions-v45 button{
+  min-height:46px!important;
+  height:auto!important;
+  border-radius:11px!important;
+  font-size:12px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  padding:8px 5px!important;
+  white-space:normal!important;
+}
+.route-detail-btn{
+  background:#0a1d29!important;color:#eaf7ff!important;
+  border:1px solid #39bff2!important;
+}
+.route-nav-start-btn{
+  background:linear-gradient(180deg,#2f9cff,#0877ee)!important;
+  color:#fff!important;border:1px solid #53b8ff!important;
+  box-shadow:0 4px 15px rgba(0,126,255,.28)!important;
+}
+.route-external-btn{
+  background:#0a1d29!important;color:#eaf7ff!important;
+  border:1px solid #39bff2!important;
+}
+#mainView #routeSheet.expanded{padding-bottom:0!important}
+@media(max-width:390px){
+  .route-actions-v45{grid-template-columns:1fr 1.08fr 1fr!important;gap:5px!important;padding-left:6px!important;padding-right:6px!important}
+  .route-actions-v45 button{font-size:10.5px!important;padding:7px 3px!important}
+}
+
 </style>
 </head>
 <body class="main-active">
@@ -488,7 +526,12 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <div id="routeAlternatives" class="route-alternatives"></div>
     <div class="route-info-row"><span>到着予想 <strong id="etaText">—</strong></span><span id="tollWrap" style="display:none">高速料金 <strong id="tollText">—</strong></span></div>
     <div style="padding:2px 12px 6px;font-size:10px;color:#8fa6b5">リアルタイム交通情報未接続時は、ルート線を青色で表示します。</div>
-    <div class="route-actions"><button id="routePrimaryBtn" class="route-preview-btn" onclick="routePrimaryAction()">ルートプレビュー</button><button class="route-open-btn" onclick="openSelectedExternalMap()" aria-label="他の地図アプリで開く">↗</button></div><div id="navVoiceHint">音声ガイダンス ON ・ ボタンを押すとナビ終了</div>
+    <div class="route-actions route-actions-v45">
+      <button id="routePreviewBtn" class="route-detail-btn" onclick="previewShortestRoute()">🗺 ルートプレビュー</button>
+      <button id="routeNavStartBtn" class="route-nav-start-btn" onclick="startNavigationFromButton()">▶ ナビ開始</button>
+      <button class="route-external-btn" onclick="openSelectedExternalMap()">↗ 他の地図で開く</button>
+    </div>
+    <div id="navVoiceHint">音声ガイダンス ON</div>
   </div>
 </section>
 
@@ -564,7 +607,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v44 Swipe Fast Buildings</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v45 Clear Navigation Actions</div>
   </div>
 </section>
 
@@ -994,13 +1037,18 @@ function addRouteLine(geometry){
   selectedRouteIndex=0;drawAllRoutes();
 }
 function updateRoutePrimaryButton(){
-  const btn=document.getElementById('routePrimaryBtn');if(!btn)return;
-  btn.disabled=false;
+  const preview=document.getElementById('routePreviewBtn');
+  const start=document.getElementById('routeNavStartBtn');
   const hint=document.getElementById('navVoiceHint');
-  btn.classList.toggle('nav-active',navigationActive);
+  if(preview){
+    preview.disabled=navigationActive;
+    preview.textContent=routeReady?'🗺 ルート再検索':'🗺 ルートプレビュー';
+  }
+  if(start){
+    start.disabled=navigationActive;
+    start.textContent=navigationActive?'ナビ中':'▶ ナビ開始';
+  }
   if(hint)hint.classList.toggle('show',navigationActive);
-  if(navigationActive){btn.textContent='ナビ中・タップで終了';return}
-  btn.textContent=routeReady?'移動します':'ルートプレビュー';
 }
 
 function setVoiceVolume(v){
@@ -1109,6 +1157,15 @@ function updateNavChrome(step,distanceMetersToStep){
   const remain=document.getElementById('navRemainText');if(remain)remain.textContent=`あと ${formatKm(currentRouteDistance)}`;
 }
 
+
+async function startNavigationFromButton(){
+  if(navigationActive)return;
+  if(!routeReady){
+    await previewShortestRoute();
+  }
+  if(routeReady)startNavigation();
+}
+
 async function routePrimaryAction(){
   if(navigationActive){stopNavigation(true);return}
   if(routeReady){startNavigation();return}
@@ -1120,7 +1177,10 @@ async function previewShortestRoute(){
   if(!target)target=nearestPending(origin);
   if(!target||!Number.isFinite(target.lat)||!Number.isFinite(target.lng)){alert('位置が登録されている配達先がありません');return}
   selectedId=target.id;localStorage.setItem(SEL,target.id);navigationTargetId=target.id;renderRouteSheet();
-  const btn=document.getElementById('routePrimaryBtn');if(btn){btn.disabled=true;btn.textContent='検索中…'}
+  const previewBtn=document.getElementById('routePreviewBtn');
+  const startBtn=document.getElementById('routeNavStartBtn');
+  if(previewBtn){previewBtn.disabled=true;previewBtn.textContent='検索中…'}
+  if(startBtn)startBtn.disabled=true;
   routeAlternatives=[];selectedRouteIndex=0;
   try{
     const coords=`${origin.lng},${origin.lat};${target.lng},${target.lat}`;
@@ -1265,12 +1325,19 @@ function startNavigation(){
   }
 }
 function stopNavigation(speak=true){
-  navigationActive=false;followMode=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;saveNavState();try{wakeLock?.release();wakeLock=null}catch(e){}
-  document.getElementById('mainView')?.classList.remove('navigation-mode');
+  navigationActive=false;followMode=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;
+  routePreviewActive=false;routeReady=false;navigationTargetId=null;
+  routeAlternatives=[];selectedRouteIndex=0;navigationSteps=[];navigationRouteCoords=[];
+  saveNavState();try{wakeLock?.release();wakeLock=null}catch(e){}
+  document.getElementById('mainView')?.classList.remove('navigation-mode','preview-mode');
   try{window.speechSynthesis?.cancel()}catch(e){}
+  clearRouteLine();
+  const stats=document.getElementById('routeStats');if(stats)stats.textContent='— 分・— km';
+  const eta=document.getElementById('etaText');if(eta)eta.textContent='—';
+  const alts=document.getElementById('routeAlternatives');if(alts)alts.innerHTML='';
   if(speak)speakNavigation('ナビを終了しました',true);
-  document.getElementById('mainView')?.classList.add('preview-mode');
-  toggleRouteSheet(true);updateRoutePrimaryButton();
+  toggleRouteSheet(false);
+  updateRoutePrimaryButton();
 }
 function startPinCorrection(){
   const s=stops.find(x=>x.id===selectedId);if(!s||!Number.isFinite(s.lng)||!Number.isFinite(s.lat))return;
