@@ -564,7 +564,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v42 Map Fixes</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v44 Swipe Fast Buildings</div>
   </div>
 </section>
 
@@ -640,7 +640,7 @@ function addBaseBuildingOverlay(){
   }catch(e){console.warn('base building fill',e)}
   try{
     if(!map.getLayer('custom-3d-buildings'))map.addLayer({
-      id:'custom-3d-buildings',source:layer.source,'source-layer':layer['source-layer'],type:'fill-extrusion',minzoom:15,
+      id:'custom-3d-buildings',source:layer.source,'source-layer':layer['source-layer'],type:'fill-extrusion',minzoom:15.5,
       paint:{
         'fill-extrusion-color':mapTheme==='dark'?'#738b9c':'#cec8bd',
         'fill-extrusion-height':['coalesce',['to-number',['get','render_height']],['to-number',['get','height']],10],
@@ -667,7 +667,7 @@ function addGsiBuildingOverlay(){
   }catch(e){console.warn('gsi building fill',e)}
   try{
     if(!map.getLayer('gsi-building-3d'))map.addLayer({
-      id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15,
+      id:'gsi-building-3d',source:'gsi-buildings','source-layer':'building',type:'fill-extrusion',minzoom:15.5,
       paint:{
         'fill-extrusion-color':mapTheme==='dark'?'#71899a':'#cbc5ba',
         'fill-extrusion-height':['case',['==',['get','ftCode'],3103],40,['==',['get','ftCode'],3104],26,11],
@@ -680,20 +680,30 @@ function addGsiBuildingOverlay(){
 function restoreBuildingOverlays(){
   enhanceNativeBuildingLayers();
   addBaseBuildingOverlay();
-  if(buildingOverlayTimer)clearTimeout(buildingOverlayTimer);
-  buildingOverlayTimer=setTimeout(()=>{
-    if(!map.isStyleLoaded())return;
-    enhanceNativeBuildingLayers();
+  if(buildingOverlayTimer){clearTimeout(buildingOverlayTimer);buildingOverlayTimer=null}
+  if(map.isStyleLoaded()){
+    // Start loading the detailed building source immediately instead of waiting.
     addGsiBuildingOverlay();
-  },180);
+    enhanceNativeBuildingLayers();
+  }
 }
 // 自動追従は初期状態ON。ユーザーが地図を動かす/ピンチズームした時だけOFF。現在地ボタンで再開。
 map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
 map.on('zoomstart',e=>{if(e.originalEvent)followMode=false});
 map.on('rotatestart',e=>{if(e.originalEvent)followMode=false});
-map.on('load',()=>{try{applyNightPalette()}catch(e){} drawMarkers(); startLocationWatch(); requestAnimationFrame(()=>restoreBuildingOverlays());});
+map.on('load',()=>{
+  try{applyNightPalette();enhanceNativeBuildingLayers();addBaseBuildingOverlay();addGsiBuildingOverlay()}catch(e){}
+  drawMarkers();
+  startLocationWatch();
+});
 
-map.on('style.load',()=>{try{applyNightPalette()}catch(e){} requestAnimationFrame(()=>restoreBuildingOverlays());});
+map.on('style.load',()=>{
+  try{applyNightPalette();enhanceNativeBuildingLayers();addBaseBuildingOverlay()}catch(e){}
+  requestAnimationFrame(()=>restoreBuildingOverlays());
+});
+map.on('styledata',()=>{
+  try{enhanceNativeBuildingLayers()}catch(e){}
+});
 
 // v42: 地図上の配達先登録は誤操作防止のため「長押し」のみ。
 let mapLongPressTimer=null,mapLongPressStart=null,mapLongPressTriggered=false;
@@ -716,7 +726,7 @@ mapCanvas.addEventListener('pointerdown',ev=>{
     const ll=map.unproject(point);
     try{navigator.vibrate?.(35)}catch(e){}
     showMapRegistration(ll);
-  },700);
+  },3000);
 },{passive:true});
 mapCanvas.addEventListener('pointermove',ev=>{
   if(!mapLongPressStart)return;
@@ -1334,6 +1344,33 @@ function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&l
 
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&navigationActive){requestNavWakeLock();if(userPos)refreshNavigationRoute();}});
 window.addEventListener('pagehide',saveNavState);
+
+
+// v44: サブ画面だけ右スワイプで一つ前に戻る。地図メイン画面では無効。
+let subSwipeStartX=null,subSwipeStartY=null,subSwipeView=null;
+document.addEventListener('touchstart',ev=>{
+  if(!ev.touches||ev.touches.length!==1)return;
+  const active=document.querySelector('.view.active');
+  if(!active||active.id==='mainView')return;
+  // Avoid interfering with form controls and horizontal sliders.
+  const t=ev.target;
+  if(t?.closest?.('input,textarea,select,[type="range"],.seg,.route-alternatives'))return;
+  subSwipeView=active;
+  subSwipeStartX=ev.touches[0].clientX;
+  subSwipeStartY=ev.touches[0].clientY;
+},{passive:true});
+
+document.addEventListener('touchend',ev=>{
+  if(!subSwipeView||subSwipeStartX===null||!ev.changedTouches?.length){
+    subSwipeStartX=subSwipeStartY=null;subSwipeView=null;return;
+  }
+  const end=ev.changedTouches[0];
+  const dx=end.clientX-subSwipeStartX;
+  const dy=end.clientY-subSwipeStartY;
+  const stillActive=document.querySelector('.view.active')===subSwipeView;
+  subSwipeStartX=subSwipeStartY=null;subSwipeView=null;
+  if(stillActive && dx>95 && Math.abs(dy)<70)goBack();
+},{passive:true});
 
 window.addEventListener('load',()=>{ensureTodayMetrics();updateMapCanvasTheme();updateAll();
 try{
