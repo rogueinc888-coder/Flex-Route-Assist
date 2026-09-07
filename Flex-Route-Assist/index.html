@@ -410,6 +410,32 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
   .nav-banner-instruction{font-size:16px}
 }
 
+
+/* v42: collapsed bottom sheet must never cover the map */
+#mainView #routeSheet:not(.expanded){
+  max-height:none!important;
+  height:18px!important;
+  min-height:18px!important;
+  overflow:hidden!important;
+  transform:none!important;
+  padding:0!important;
+}
+#mainView #routeSheet:not(.expanded)>*:not(.sheet-handle){
+  display:none!important;
+}
+#mainView #routeSheet:not(.expanded) .sheet-handle{
+  display:block!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  margin:6px auto 0!important;
+}
+#mainView #routeSheet.expanded{
+  height:auto!important;
+  max-height:72%!important;
+}
+/* Stronger building footprints while keeping the current light/night palette */
+.maplibregl-map{background:inherit}
+
 </style>
 </head>
 <body class="main-active">
@@ -538,7 +564,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v41 No Fake Traffic</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v42 Map Fixes</div>
   </div>
 </section>
 
@@ -581,13 +607,35 @@ function findBaseBuildingLayer(){
   return layers.find(l=>l.source && l['source-layer'] && /building/i.test(String(l['source-layer'])))
       || layers.find(l=>l.source && /building/i.test(String(l.id||'')));
 }
+
+function enhanceNativeBuildingLayers(){
+  const style=map.getStyle()||{};
+  const layers=style.layers||[];
+  const safePaint=(id,prop,val)=>{try{map.setPaintProperty(id,prop,val)}catch(e){}};
+  for(const layer of layers){
+    const id=String(layer.id||'');
+    const sl=String(layer['source-layer']||'');
+    const key=(id+' '+sl).toLowerCase();
+    if(!/building/.test(key))continue;
+    try{map.setLayoutProperty(layer.id,'visibility','visible')}catch(e){}
+    if(layer.type==='fill'){
+      safePaint(layer.id,'fill-color',mapTheme==='dark'?'#61798b':'#c9ced2');
+      safePaint(layer.id,'fill-opacity',mapTheme==='dark'?0.96:0.94);
+      safePaint(layer.id,'fill-outline-color',mapTheme==='dark'?'#aab9c4':'#8f969c');
+    }else if(layer.type==='fill-extrusion'){
+      safePaint(layer.id,'fill-extrusion-color',mapTheme==='dark'?'#71899a':'#bcc4ca');
+      safePaint(layer.id,'fill-extrusion-opacity',mapTheme==='dark'?0.92:0.88);
+    }
+  }
+}
+
 function addBaseBuildingOverlay(){
   const layer=findBaseBuildingLayer();
   if(!layer||!layer.source||!layer['source-layer'])return;
   try{
     if(!map.getLayer('custom-building-footprints'))map.addLayer({
       id:'custom-building-footprints',source:layer.source,'source-layer':layer['source-layer'],type:'fill',minzoom:13,
-      paint:{'fill-color':mapTheme==='dark'?'#657d8e':'#d7d3ca','fill-opacity':mapTheme==='dark'?0.90:0.95,'fill-outline-color':mapTheme==='dark'?'#9fb2bf':'#a6a098'}
+      paint:{'fill-color':mapTheme==='dark'?'#61798b':'#c8cdd1','fill-opacity':mapTheme==='dark'?0.96:0.96,'fill-outline-color':mapTheme==='dark'?'#aab9c4':'#8f969c'}
     });
   }catch(e){console.warn('base building fill',e)}
   try{
@@ -614,7 +662,7 @@ function addGsiBuildingOverlay(){
   try{
     if(!map.getLayer('gsi-building-footprints'))map.addLayer({
       id:'gsi-building-footprints',source:'gsi-buildings','source-layer':'building',type:'fill',minzoom:13,
-      paint:{'fill-color':mapTheme==='dark'?'#60788a':'#d7d2c9','fill-opacity':mapTheme==='dark'?0.92:0.96,'fill-outline-color':mapTheme==='dark'?'#aabcc8':'#9f9991'}
+      paint:{'fill-color':mapTheme==='dark'?'#60788a':'#c6ccd0','fill-opacity':mapTheme==='dark'?0.96:0.97,'fill-outline-color':mapTheme==='dark'?'#aabcc8':'#8b9298'}
     });
   }catch(e){console.warn('gsi building fill',e)}
   try{
@@ -630,17 +678,54 @@ function addGsiBuildingOverlay(){
   }catch(e){console.warn('gsi building 3d',e)}
 }
 function restoreBuildingOverlays(){
+  enhanceNativeBuildingLayers();
   addBaseBuildingOverlay();
   if(buildingOverlayTimer)clearTimeout(buildingOverlayTimer);
-  buildingOverlayTimer=setTimeout(()=>{if(map.isStyleLoaded())addGsiBuildingOverlay()},220);
+  buildingOverlayTimer=setTimeout(()=>{
+    if(!map.isStyleLoaded())return;
+    enhanceNativeBuildingLayers();
+    addGsiBuildingOverlay();
+  },180);
 }
 // 自動追従は初期状態ON。ユーザーが地図を動かす/ピンチズームした時だけOFF。現在地ボタンで再開。
 map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
 map.on('zoomstart',e=>{if(e.originalEvent)followMode=false});
 map.on('rotatestart',e=>{if(e.originalEvent)followMode=false});
 map.on('load',()=>{try{applyNightPalette()}catch(e){} drawMarkers(); startLocationWatch(); requestAnimationFrame(()=>restoreBuildingOverlays());});
-map.on('click',e=>showMapRegistration(e.lngLat));
+
 map.on('style.load',()=>{try{applyNightPalette()}catch(e){} requestAnimationFrame(()=>restoreBuildingOverlays());});
+
+// v42: 地図上の配達先登録は誤操作防止のため「長押し」のみ。
+let mapLongPressTimer=null,mapLongPressStart=null,mapLongPressTriggered=false;
+const mapCanvas=map.getCanvas();
+
+function cancelMapLongPress(){
+  if(mapLongPressTimer){clearTimeout(mapLongPressTimer);mapLongPressTimer=null}
+  mapLongPressStart=null;
+}
+mapCanvas.addEventListener('pointerdown',ev=>{
+  if(ev.button!==undefined&&ev.button!==0)return;
+  if(correctionMode||navigationActive)return;
+  mapLongPressTriggered=false;
+  mapLongPressStart={x:ev.clientX,y:ev.clientY};
+  mapLongPressTimer=setTimeout(()=>{
+    mapLongPressTimer=null;
+    mapLongPressTriggered=true;
+    const rect=mapCanvas.getBoundingClientRect();
+    const point=[ev.clientX-rect.left,ev.clientY-rect.top];
+    const ll=map.unproject(point);
+    try{navigator.vibrate?.(35)}catch(e){}
+    showMapRegistration(ll);
+  },700);
+},{passive:true});
+mapCanvas.addEventListener('pointermove',ev=>{
+  if(!mapLongPressStart)return;
+  if(Math.hypot(ev.clientX-mapLongPressStart.x,ev.clientY-mapLongPressStart.y)>12)cancelMapLongPress();
+},{passive:true});
+mapCanvas.addEventListener('pointerup',cancelMapLongPress,{passive:true});
+mapCanvas.addEventListener('pointercancel',cancelMapLongPress,{passive:true});
+mapCanvas.addEventListener('pointerleave',cancelMapLongPress,{passive:true});
+
 let userHeading=0,prevHeadingPos=null,userArrowEl=null;
 const HEADING_ANCHORS=[{deg:0,label:'↑',name:'上'},{deg:90,label:'→',name:'右'},{deg:180,label:'↓',name:'下'},{deg:270,label:'←',name:'左'}];
 let headingAnchorIndex=Number(localStorage.getItem('flexHeadingAnchor')||0);
@@ -958,7 +1043,7 @@ async function reverseGeocodePoint(lat,lng){
   }catch(e){return `${lat.toFixed(6)}, ${lng.toFixed(6)}`}
 }
 async function showMapRegistration(lngLat){
-  if(correctionMode||navigationActive)return;
+  if(correctionMode||navigationActive||!lngLat)return;
   mapDraftPoint={lat:lngLat.lat,lng:lngLat.lng,address:''};
   const pop=document.getElementById('mapRegisterPop'),addr=document.getElementById('mapRegisterAddress');
   pop?.classList.add('show');if(addr)addr.textContent='住所を取得しています…';
