@@ -546,6 +546,26 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 }
 .nav-reroute-btn:disabled{opacity:.55}
 
+
+/* v55 delivery history */
+.history-toolbar{display:flex;gap:8px;padding:10px 12px}
+.history-toolbar input{flex:1;background:#0c1a24;color:#fff;border:1px solid #294557;border-radius:10px;padding:10px}
+.history-toolbar button{border:1px solid #2d91b8;background:#0d2633;color:#8edfff;border-radius:10px;padding:0 14px;font-weight:800}
+.history-summary{margin:0 12px 10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.history-summary-card{background:#0b1b25;border:1px solid #213b4b;border-radius:12px;padding:11px;color:#fff}
+.history-summary-card span{display:block;color:#8fa7b6;font-size:10px}
+.history-summary-card strong{display:block;font-size:20px;margin-top:2px}
+.history-list{padding:0 12px 28px;display:grid;gap:8px}
+.history-item{background:#0b1b25;border:1px solid #203a4a;border-radius:12px;padding:10px;color:#fff}
+.history-item-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.history-status{font-size:11px;font-weight:900;border-radius:999px;padding:4px 8px}
+.history-status.done{background:#0f5d3c;color:#9af0bf}
+.history-status.absent{background:#5c2828;color:#ffc1bd}
+.history-address{font-size:13px;font-weight:800;margin-top:7px}
+.history-meta{font-size:11px;color:#99afbd;margin-top:5px}
+.history-empty{padding:28px 12px;text-align:center;color:#89a0af}
+.history-fab{position:absolute;z-index:20;right:12px;bottom:80px;width:42px;height:42px;border-radius:50%;border:1px solid #315468;background:#102734;color:#fff}
+
 </style>
 </head>
 <body class="main-active">
@@ -639,7 +659,8 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <button class="drawer-item" onclick="drawerGo('photoView')"><span class="mi">▣</span><span>集荷・荷物登録</span></button>
     <button class="drawer-item" onclick="drawerGo('performanceView')"><span class="mi">▥</span><span>パフォーマンス</span></button>
     <div class="drawer-foot"></div>
-    <button class="drawer-item" onclick="drawerGo('settingsView')"><span class="mi">⚙</span><span>設定</span></button>
+    <button onclick="openView('historyView',true);renderDeliveryHistory()">📋 配達実績</button>
+<button class="drawer-item" onclick="drawerGo('settingsView')"><span class="mi">⚙</span><span>設定</span></button>
   </div>
 </aside>
 <section id="overviewView" class="view dark-screen"><div class="common-back-row"><button class="common-back-btn" onclick="goBack()">← 一つ前に戻る</button></div>
@@ -713,14 +734,14 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist FINAL v54 All In One</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v55 Delivery History</div>
   </div>
 </section>
 
 </div>
 <div id="autoNextToast" class="auto-next-toast"></div>
 <script>
-const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const VOICE_TIMING_KEY='flexVoiceTimingV1'; const VOICE_ENABLED_KEY='flexVoiceEnabledV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1';
+const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const VOICE_TIMING_KEY='flexVoiceTimingV1'; const VOICE_ENABLED_KEY='flexVoiceEnabledV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1' const HISTORY_KEY='flexDeliveryHistoryV1';
 const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/liberty',light:'https://tiles.openfreemap.org/styles/positron'};
 let mapTheme=localStorage.getItem(MAP_THEME_KEY)||'light'; if(!MAP_STYLES[mapTheme])mapTheme='light';
 // v34: 明るめのブルーグレー・ナイトモード。建物・道路・地名を見失わない配色にする。
@@ -1033,8 +1054,61 @@ function saveDetail(){const s=stops.find(x=>x.id===selectedId);if(!s)return;s.dr
 function savePoint(type){const s=stops.find(x=>x.id===selectedId);if(!s)return;navigator.geolocation?.getCurrentPosition(p=>{s[type]={lat:p.coords.latitude,lng:p.coords.longitude};saveStops();renderDetail();alert((type==='entry'?'入口':'駐車')+'位置を保存しました')},()=>alert('現在地を取得できませんでした'),{enableHighAccuracy:true})}
 function deleteStop(id){const s=stops.find(x=>x.id===id);if(!s)return;if(!confirm(`「${s.address}」を削除しますか？`))return;stops=stops.filter(x=>x.id!==id);if(selectedId===id)selectedId=stops[0]?.id||null;localStorage.setItem(SEL,selectedId||'');saveStops();openView('listView')}
 function markDone(id){setStopStatus(id,'done')}
+
+function getDeliveryHistory(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch(e){return[]}
+}
+function saveDeliveryHistory(rows){
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(rows.slice(-5000)));
+}
+function recordDeliveryHistory(stop,status){
+  if(!stop||!['done','absent'].includes(status))return;
+  const rows=getDeliveryHistory(),now=new Date();
+  rows.push({
+    id:String(Date.now())+'_'+Math.random().toString(36).slice(2,7),
+    stopId:stop.id,status,address:stop.address||'',name:stop.name||'',
+    packageCount:Math.max(1,Number(stop.packageCount||1)),
+    timeSlot:stop.timeSlot||'なし',memo:stop.memo||'',
+    completedAt:now.toISOString(),
+    localDate:now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')
+  });
+  saveDeliveryHistory(rows);
+}
+function setHistoryToday(){
+  const d=new Date(),v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const i=document.getElementById('historyDate');if(i)i.value=v;
+  renderDeliveryHistory();
+}
+function renderDeliveryHistory(){
+  const i=document.getElementById('historyDate');
+  if(i&&!i.value){
+    const d=new Date();i.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  const date=i?.value||'';
+  const rows=getDeliveryHistory().filter(x=>x.localDate===date).sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+  const done=rows.filter(x=>x.status==='done').length,absent=rows.filter(x=>x.status==='absent').length;
+  const packages=rows.reduce((n,x)=>n+Number(x.packageCount||0),0);
+  const s=document.getElementById('historySummary');
+  if(s)s.innerHTML=`
+    <div class="history-summary-card"><span>配達完了</span><strong>${done}</strong></div>
+    <div class="history-summary-card"><span>不在</span><strong>${absent}</strong></div>
+    <div class="history-summary-card"><span>処理件数</span><strong>${rows.length}</strong></div>
+    <div class="history-summary-card"><span>荷物数</span><strong>${packages}</strong></div>`;
+  const l=document.getElementById('historyList');if(!l)return;
+  if(!rows.length){l.innerHTML='<div class="history-empty">この日の配達実績はありません</div>';return}
+  l.innerHTML=rows.map(x=>{
+    const t=new Date(x.completedAt),tm=String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+    return `<div class="history-item">
+      <div class="history-item-top"><span class="history-status ${x.status}">${x.status==='done'?'配達完了':'不在'}</span><strong>${tm}</strong></div>
+      <div class="history-address">${esc(x.address||'住所なし')}</div>
+      <div class="history-meta">${x.name?esc(x.name)+' ・ ':''}荷物 ${Number(x.packageCount||1)}個${x.timeSlot&&x.timeSlot!=='なし'?' ・ '+esc(x.timeSlot):''}</div>
+    </div>`;
+  }).join('');
+}
+
 function setStopStatus(id,status,autoNext=false){
   const s=stops.find(x=>x.id===id);if(!s)return;
+  const previousStatus=s.status;
   ensureTodayMetrics();
   if(status==='done'&&s.status!=='done'){
     metrics.completed=(metrics.completed||0)+1;
@@ -1044,6 +1118,7 @@ function setStopStatus(id,status,autoNext=false){
   }
   if(status==='absent'&&s.status!=='absent')metrics.absent=(metrics.absent||0)+1;
   s.status=status;s.statusUpdatedAt=Date.now();
+  if(previousStatus!==status&&['done','absent'].includes(status))recordDeliveryHistory(s,status);
   saveMetrics();saveStops();renderDetail();renderList();renderOverview();renderPerformance();drawMarkers();
   if(autoNext){
     clearRouteLine();routePreviewActive=false;routeReady=false;routeAlternatives=[];selectedRouteIndex=0;
@@ -1705,5 +1780,19 @@ try{
     <button class="cancel" onclick="closeMapAppChooser()">キャンセル</button>
   </div>
 </div>
+
+<section id="historyView" class="view">
+  <div class="subhead">
+    <button class="back-btn" onclick="goBackView()">‹</button>
+    <strong>配達実績</strong>
+  </div>
+  <div class="history-toolbar">
+    <input id="historyDate" type="date" onchange="renderDeliveryHistory()">
+    <button onclick="setHistoryToday()">今日</button>
+  </div>
+  <div id="historySummary" class="history-summary"></div>
+  <div id="historyList" class="history-list"></div>
+</section>
+
 </body>
 </html>
