@@ -734,14 +734,14 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v56 History CSV Export</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v57 Fix Unresponsive</div>
   </div>
 </section>
 
 </div>
 <div id="autoNextToast" class="auto-next-toast"></div>
 <script>
-const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const VOICE_TIMING_KEY='flexVoiceTimingV1'; const VOICE_ENABLED_KEY='flexVoiceEnabledV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1' const HISTORY_KEY='flexDeliveryHistoryV1';
+const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const VOICE_TIMING_KEY='flexVoiceTimingV1'; const VOICE_ENABLED_KEY='flexVoiceEnabledV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1'; const HISTORY_KEY='flexDeliveryHistoryV1';
 const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/liberty',light:'https://tiles.openfreemap.org/styles/positron'};
 let mapTheme=localStorage.getItem(MAP_THEME_KEY)||'light'; if(!MAP_STYLES[mapTheme])mapTheme='light';
 // v34: 明るめのブルーグレー・ナイトモード。建物・道路・地名を見失わない配色にする。
