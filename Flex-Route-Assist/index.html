@@ -11,7 +11,70 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js">
+function installStrictMapLongPress(){
+  const canvas=map?.getCanvas?.();
+  if(!canvas||canvas.dataset.strictLongPressInstalled==='1')return;
+  canvas.dataset.strictLongPressInstalled='1';
+
+  const start=(clientX,clientY,lngLat)=>{
+    cancelMapLongPress();
+    if(Date.now()<mapLongPressBlockedUntil)return;
+    mapLongPressStart={x:clientX,y:clientY,lngLat};
+    mapLongPressTimer=setTimeout(()=>{
+      if(!mapLongPressStart||mapLongPressTriggered)return;
+      mapLongPressTriggered=true;
+      mapLongPressBlockedUntil=Date.now()+1200;
+      try{
+        if(navigator.vibrate)navigator.vibrate(40);
+      }catch(e){}
+      if(typeof openLongPressAddressConfirm==='function'){
+        openLongPressAddressConfirm(mapLongPressStart.lngLat);
+      }else if(typeof openMapAddressRegistration==='function'){
+        openMapAddressRegistration(mapLongPressStart.lngLat);
+      }else if(typeof registerFromMapLongPress==='function'){
+        registerFromMapLongPress(mapLongPressStart.lngLat);
+      }
+    },5000);
+  };
+
+  canvas.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1){cancelMapLongPress();return}
+    const t=e.touches[0];
+    const rect=canvas.getBoundingClientRect();
+    const pt=[t.clientX-rect.left,t.clientY-rect.top];
+    const ll=map.unproject(pt);
+    start(t.clientX,t.clientY,ll);
+  },{passive:true,capture:true});
+
+  canvas.addEventListener('touchmove',e=>{
+    if(!mapLongPressStart||e.touches.length!==1){cancelMapLongPress();return}
+    const t=e.touches[0];
+    const dx=t.clientX-mapLongPressStart.x,dy=t.clientY-mapLongPressStart.y;
+    if(Math.hypot(dx,dy)>8)cancelMapLongPress();
+  },{passive:true,capture:true});
+
+  canvas.addEventListener('touchend',()=>cancelMapLongPress(),{passive:true,capture:true});
+  canvas.addEventListener('touchcancel',()=>cancelMapLongPress(),{passive:true,capture:true});
+
+  canvas.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    const rect=canvas.getBoundingClientRect();
+    const ll=map.unproject([e.clientX-rect.left,e.clientY-rect.top]);
+    start(e.clientX,e.clientY,ll);
+  },{capture:true});
+
+  canvas.addEventListener('pointermove',e=>{
+    if(!mapLongPressStart)return;
+    const dx=e.clientX-mapLongPressStart.x,dy=e.clientY-mapLongPressStart.y;
+    if(Math.hypot(dx,dy)>8)cancelMapLongPress();
+  },{capture:true});
+
+  canvas.addEventListener('pointerup',()=>cancelMapLongPress(),{capture:true});
+  canvas.addEventListener('pointercancel',()=>cancelMapLongPress(),{capture:true});
+}
+
+</script>
 <style>
 :root{--bg:#0e1114;--card:#fff;--orange:#ff5a00;--muted:#717982;--green:#16a05d;--red:#e5483f;--blue:#1778ff;--shadow:0 12px 30px rgba(0,0,0,.18)}
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;background:#eef1f3;color:#111}button,input,textarea{font:inherit}.app{height:100%;display:flex;flex-direction:column}.topbar{height:82px;padding:env(safe-area-inset-top) 16px 8px;background:linear-gradient(180deg,#15191d,#0d0f12);color:#fff;display:flex;align-items:flex-end;justify-content:space-between;z-index:20}.brand{text-align:center;flex:1}.brand b{display:block;font-size:22px;line-height:1.05}.brand span{font-size:13px;opacity:.92;margin-top:4px;display:block}.iconbtn{width:44px;height:44px;border:0;background:transparent;color:#fff;font-size:28px}.view{display:none;flex:1;min-height:0}.view.active{display:flex;flex-direction:column}
@@ -566,6 +629,81 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 .history-empty{padding:28px 12px;text-align:center;color:#89a0af}
 .history-fab{position:absolute;z-index:20;right:12px;bottom:80px;width:42px;height:42px;border-radius:50%;border:1px solid #315468;background:#102734;color:#fff}
 
+
+/* v58 history screen layout fix */
+#historyView{
+  position:absolute;
+  inset:0;
+  z-index:60;
+  background:#020d13;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-top:env(safe-area-inset-top);
+}
+#historyView:not(.active){display:none!important}
+#historyView.active{display:block!important}
+#historyView .subhead{
+  position:sticky;
+  top:0;
+  z-index:3;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#07566d;
+  border-bottom:1px solid #1b738b;
+  padding:0 58px;
+}
+#historyView .subhead strong{
+  color:#fff;
+  font-size:18px;
+  line-height:1;
+}
+#historyView .back-btn{
+  position:absolute;
+  left:10px;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  min-width:40px;
+  padding:0;
+  border-radius:10px;
+  border:1px solid #2b6578;
+  background:#0a1b24;
+  color:#fff;
+  font-size:26px;
+  line-height:38px;
+}
+#historyView .history-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 78px 78px;
+  gap:8px;
+  padding:12px;
+}
+#historyView .history-toolbar input{
+  width:100%;
+  min-width:0;
+  height:42px;
+  box-sizing:border-box;
+  font-size:15px;
+}
+#historyView .history-toolbar button{
+  height:42px;
+  padding:0 8px;
+  font-size:14px;
+}
+#historyView .history-summary{
+  margin:0 12px 12px;
+}
+#historyView .history-list{
+  padding-bottom:calc(28px + env(safe-area-inset-bottom));
+}
+body.history-open #sideMenu,
+body.history-open .menu-overlay{
+  display:none!important;
+}
+
 </style>
 </head>
 <body class="main-active">
@@ -659,7 +797,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <button class="drawer-item" onclick="drawerGo('photoView')"><span class="mi">▣</span><span>集荷・荷物登録</span></button>
     <button class="drawer-item" onclick="drawerGo('performanceView')"><span class="mi">▥</span><span>パフォーマンス</span></button>
     <div class="drawer-foot"></div>
-    <button onclick="openView('historyView',true);renderDeliveryHistory()">📋 配達実績</button>
+    <button onclick="openHistoryView()">📋 配達実績</button>
 <button class="drawer-item" onclick="drawerGo('settingsView')"><span class="mi">⚙</span><span>設定</span></button>
   </div>
 </aside>
@@ -713,7 +851,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
   <div class="dark-head"><button onclick="openDrawer()">☰</button><h2>設定</h2><button onclick="openView('mainView')">⌖</button></div>
   <div class="settings-list">
     <div class="map-theme-setting"><div class="map-theme-copy"><span>◐</span><div><b>地図の背景色</b><small>ナイト（薄い黒） / 白を選択</small></div></div><div class="map-theme-buttons"><button id="mapThemeDark" type="button" onclick="setMapTheme('dark')">黒</button><button id="mapThemeLight" type="button" onclick="setMapTheme('light')">白</button></div></div>
-    <div class="voice-volume-setting"><span>🔊</span><div style="min-width:98px"><b>音声ガイダンス</b><small id="voiceVolumeLabel" style="display:block;color:#94a9b8">音量 100%</small></div><input id="voiceVolume" type="range" min="0" max="100" step="5" value="100" oninput="setVoiceVolume(this.value)"></div>
+    <div class="voice-volume-setting"><span>🔊</span><div style="min-width:98px"><b>音声ガイダンス</b><small id="voiceVolumeLabel" style="display:block;color:#94a9b8">音量 100%（最大）</small></div><input id="voiceVolume" type="range" min="0" max="100" step="5" value="100" oninput="setVoiceVolume(this.value)"></div>
     <div class="voice-enable-setting">
       <div><b>🔊 音声案内</b><small>ナビ中の読み上げ</small></div>
       <button id="voiceEnableBtn" onclick="setVoiceGuideEnabled(!voiceGuideEnabled)">ON</button>
@@ -734,7 +872,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v57 Fix Unresponsive</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v59 Pin Delete Voice Longpress</div>
   </div>
 </section>
 
@@ -862,6 +1000,7 @@ map.on('dragstart',e=>{if(e.originalEvent)followMode=false});
 map.on('zoomstart',e=>{if(e.originalEvent)followMode=false});
 map.on('rotatestart',e=>{if(e.originalEvent)followMode=false});
 map.on('load',()=>{
+  setTimeout(installStrictMapLongPress,0);
   try{applyNightPalette();enhanceNativeBuildingLayers();addBaseBuildingOverlay();addGsiBuildingOverlay()}catch(e){}
   drawMarkers();
   startLocationWatch();
@@ -896,7 +1035,7 @@ mapCanvas.addEventListener('pointerdown',ev=>{
     const ll=map.unproject(point);
     try{navigator.vibrate?.(35)}catch(e){}
     showMapRegistration(ll);
-  },3000);
+  },5000);
 },{passive:true});
 mapCanvas.addEventListener('pointermove',ev=>{
   if(!mapLongPressStart)return;
@@ -1054,6 +1193,20 @@ function saveDetail(){const s=stops.find(x=>x.id===selectedId);if(!s)return;s.dr
 function savePoint(type){const s=stops.find(x=>x.id===selectedId);if(!s)return;navigator.geolocation?.getCurrentPosition(p=>{s[type]={lat:p.coords.latitude,lng:p.coords.longitude};saveStops();renderDetail();alert((type==='entry'?'入口':'駐車')+'位置を保存しました')},()=>alert('現在地を取得できませんでした'),{enableHighAccuracy:true})}
 function deleteStop(id){const s=stops.find(x=>x.id===id);if(!s)return;if(!confirm(`「${s.address}」を削除しますか？`))return;stops=stops.filter(x=>x.id!==id);if(selectedId===id)selectedId=stops[0]?.id||null;localStorage.setItem(SEL,selectedId||'');saveStops();openView('listView')}
 function markDone(id){setStopStatus(id,'done')}
+
+
+function openHistoryView(){
+  try{closeMenu()}catch(e){}
+  document.body.classList.add('history-open');
+  openView('historyView',true);
+  renderDeliveryHistory();
+  drawMarkers();
+  if(!stops.some(x=>x.id===selectedId)){selectedId=null;localStorage.removeItem(SEL);clearRouteLine();}
+}
+function closeHistoryView(){
+  document.body.classList.remove('history-open');
+  goBackView();
+}
 
 function getDeliveryHistory(){
   try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]')}catch(e){return[]}
@@ -1489,7 +1642,7 @@ function speakNavigation(text,force=false){
   try{
     if(force)window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
-    u.lang='ja-JP';u.rate=1.0;u.pitch=1.0;u.volume=voiceVolume;
+    u.lang='ja-JP';u.rate=1.0;u.pitch=1.0;u.volume=1;
     const voices=window.speechSynthesis.getVoices?.()||[];
     const ja=voices.find(v=>String(v.lang||'').toLowerCase().startsWith('ja'));
     if(ja)u.voice=ja;
@@ -1827,7 +1980,7 @@ try{
 
 <section id="historyView" class="view">
   <div class="subhead">
-    <button class="back-btn" onclick="goBackView()">‹</button>
+    <button class="back-btn" onclick="closeHistoryView()">‹</button>
     <strong>配達実績</strong>
   </div>
   <div class="history-toolbar">
