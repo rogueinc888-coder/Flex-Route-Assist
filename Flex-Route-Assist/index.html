@@ -548,7 +548,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
 
 
 /* v55 delivery history */
-.history-toolbar{display:flex;gap:8px;padding:10px 12px}
+.history-toolbar{display:flex;gap:8px;padding:10px 12px;align-items:center}
 .history-toolbar input{flex:1;background:#0c1a24;color:#fff;border:1px solid #294557;border-radius:10px;padding:10px}
 .history-toolbar button{border:1px solid #2d91b8;background:#0d2633;color:#8edfff;border-radius:10px;padding:0 14px;font-weight:800}
 .history-summary{margin:0 12px 10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
@@ -734,7 +734,7 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v55 Delivery History</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v56 History CSV Export</div>
   </div>
 </section>
 
@@ -1104,6 +1104,50 @@ function renderDeliveryHistory(){
       <div class="history-meta">${x.name?esc(x.name)+' ・ ':''}荷物 ${Number(x.packageCount||1)}個${x.timeSlot&&x.timeSlot!=='なし'?' ・ '+esc(x.timeSlot):''}</div>
     </div>`;
   }).join('');
+}
+
+
+function exportDeliveryHistoryCsv(){
+  const input=document.getElementById('historyDate');
+  const date=input?.value||'';
+  const rows=getDeliveryHistory()
+    .filter(x=>!date||x.localDate===date)
+    .sort((a,b)=>new Date(a.completedAt)-new Date(b.completedAt));
+
+  if(!rows.length){
+    showAutoNextToast('出力できる配達実績がありません');
+    return;
+  }
+
+  const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const header=['日付','完了時刻','状態','住所','建物・部屋','荷物数','時間指定','メモ'];
+  const lines=[header.map(q).join(',')];
+
+  rows.forEach(x=>{
+    const t=new Date(x.completedAt);
+    const tm=String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+    lines.push([
+      x.localDate,
+      tm,
+      x.status==='done'?'配達完了':'不在',
+      x.address||'',
+      x.name||'',
+      Number(x.packageCount||1),
+      x.timeSlot&&x.timeSlot!=='なし'?x.timeSlot:'指定なし',
+      x.memo||''
+    ].map(q).join(','));
+  });
+
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Flex-Route-Assist_配達実績_${date||'全期間'}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showAutoNextToast('配達実績CSVを出力しました');
 }
 
 function setStopStatus(id,status,autoNext=false){
@@ -1789,6 +1833,7 @@ try{
   <div class="history-toolbar">
     <input id="historyDate" type="date" onchange="renderDeliveryHistory()">
     <button onclick="setHistoryToday()">今日</button>
+    <button onclick="exportDeliveryHistoryCsv()">CSV</button>
   </div>
   <div id="historySummary" class="history-summary"></div>
   <div id="historyList" class="history-list"></div>
