@@ -474,6 +474,78 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
   .route-actions-v45 button{font-size:10.5px!important;padding:7px 3px!important}
 }
 
+
+/* v47 arrival workflow */
+.arrival-panel{
+  position:absolute;z-index:34;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));
+  display:none;background:#031018;color:#fff;border:1px solid #315264;border-radius:16px;
+  padding:12px;box-shadow:0 12px 34px rgba(0,0,0,.45)
+}
+.arrival-panel.show{display:block}
+.arrival-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.arrival-head strong{display:block;font-size:18px}
+.arrival-head span{display:block;color:#b8cbd6;font-size:12px;margin-top:4px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arrival-close{border:1px solid #395565;background:#102532;color:#fff;border-radius:50%;width:34px;height:34px;font-size:20px}
+.arrival-package{margin:10px 0;color:#dceaf2;font-size:13px}
+.arrival-actions{display:grid;grid-template-columns:.85fr 1.4fr;gap:8px}
+.arrival-actions button{height:48px;border-radius:12px;font-weight:900;font-size:15px}
+.arrival-absent{background:#2a1b1b;color:#ff8b85;border:1px solid #a23a36}
+.arrival-done{background:#17a761;color:#fff;border:1px solid #17a761}
+.arrival-active .nav-bottom{display:none!important}
+.arrival-active #routeSheet{display:none!important}
+
+
+/* v49 GPS accuracy warning */
+.gps-accuracy-warning{
+  position:absolute;z-index:35;left:50%;top:calc(64px + env(safe-area-inset-top));
+  transform:translateX(-50%);display:none;width:min(92%,360px);
+  background:rgba(44,28,4,.96);border:1px solid #b87916;color:#fff;
+  border-radius:12px;padding:9px 12px;box-shadow:0 8px 24px rgba(0,0,0,.28);
+  pointer-events:none
+}
+.gps-accuracy-warning.show{display:block}
+.gps-accuracy-warning strong{display:block;font-size:13px}
+.gps-accuracy-warning span{display:block;font-size:11px;color:#f5d6a0;margin-top:2px}
+
+
+/* v50 voice guidance timing */
+.voice-timing-setting{margin:10px 12px 0;padding:12px;background:#0c1a24;border:1px solid #294557;border-radius:12px;color:#fff}
+.voice-timing-title{display:flex;gap:10px;align-items:center}
+.voice-timing-title>span{font-size:21px}
+.voice-timing-title b{display:block;font-size:13px}
+.voice-timing-title small{display:block;color:#94a9b8;font-size:10px;margin-top:2px}
+.voice-timing-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.voice-timing-seg button{height:36px;border:1px solid #355268;background:#102633;color:#b9cbd6;border-radius:9px;font-weight:800}
+.voice-timing-seg button.active{background:#0d8fc8;color:#fff;border-color:#35bde9}
+
+
+/* v51 arrival package details */
+.arrival-package{margin:10px 0;display:grid;gap:6px}
+.arrival-info-row{display:flex;justify-content:space-between;gap:12px;padding:7px 9px;background:#0b1b25;border:1px solid #203b4b;border-radius:9px;font-size:12px}
+.arrival-info-row span:first-child{color:#8fa8b7;white-space:nowrap}
+.arrival-info-row span:last-child{color:#fff;font-weight:800;text-align:right;overflow-wrap:anywhere}
+.arrival-memo{padding:8px 9px;background:#10202a;border-left:3px solid #29b8ec;border-radius:8px;font-size:12px;color:#e7f2f7;line-height:1.45}
+
+
+/* v52 persistent voice on/off */
+.voice-enable-setting{
+  margin:10px 12px 0;padding:11px 12px;background:#0c1a24;border:1px solid #294557;
+  border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.voice-enable-setting b{display:block;font-size:13px}
+.voice-enable-setting small{display:block;color:#94a9b8;font-size:10px;margin-top:2px}
+.voice-enable-setting button{min-width:62px;height:36px;border-radius:10px;border:1px solid #35bde9;background:#0d8fc8;color:#fff;font-weight:900}
+.voice-enable-setting button.off{border-color:#526979;background:#172733;color:#9fb1bd}
+
+
+/* v53 manual reroute */
+.nav-bottom-actions{display:flex;align-items:center;gap:8px}
+.nav-reroute-btn{
+  height:44px;padding:0 13px;border-radius:11px;border:1px solid #2e9fc9;
+  background:#0f2733;color:#8edfff;font-weight:900;white-space:nowrap
+}
+.nav-reroute-btn:disabled{opacity:.55}
+
 </style>
 </head>
 <body class="main-active">
@@ -494,7 +566,29 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
       <strong id="navEtaText">— 着</strong>
       <span id="navRemainText">あと — km</span>
     </div>
-    <button class="nav-stop-btn" onclick="stopNavigation(true)">ナビ終了</button>
+    <div class="nav-bottom-actions">
+      <button id="navRerouteBtn" class="nav-reroute-btn" onclick="manualReroute()">↻ 再検索</button>
+      <button class="nav-stop-btn" onclick="stopNavigation(true)">ナビ終了</button>
+    </div>
+  </div>
+  
+  <div id="gpsAccuracyWarning" class="gps-accuracy-warning" aria-live="polite">
+    <strong>GPSの位置精度が低下しています</strong>
+    <span id="gpsAccuracyText">現在地を確認中…</span>
+  </div>
+  <div id="arrivalPanel" class="arrival-panel">
+    <div class="arrival-head">
+      <div>
+        <strong>目的地に到着しました</strong>
+        <span id="arrivalAddress">—</span>
+      </div>
+      <button class="arrival-close" onclick="hideArrivalPanel()">×</button>
+    </div>
+    <div id="arrivalPackageInfo" class="arrival-package">荷物情報を確認中…</div>
+    <div class="arrival-actions">
+      <button class="arrival-absent" onclick="finishCurrentDelivery('absent')">不在</button>
+      <button class="arrival-done" onclick="finishCurrentDelivery('done')">配達完了 → 次へ</button>
+    </div>
   </div>
   <div class="map-search-wrap"><span class="map-search-icon">⌕</span><input id="mainAddressSearch" class="map-search" placeholder="郵便番号(7桁) / 住所で探す" enterkeyhint="search" onfocus="openView('searchView')" readonly></div>
   <button class="camera-float" aria-label="伝票を撮影" onclick="openView('photoView')">📷<small>＋</small></button>
@@ -599,6 +693,18 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
   <div class="settings-list">
     <div class="map-theme-setting"><div class="map-theme-copy"><span>◐</span><div><b>地図の背景色</b><small>ナイト（薄い黒） / 白を選択</small></div></div><div class="map-theme-buttons"><button id="mapThemeDark" type="button" onclick="setMapTheme('dark')">黒</button><button id="mapThemeLight" type="button" onclick="setMapTheme('light')">白</button></div></div>
     <div class="voice-volume-setting"><span>🔊</span><div style="min-width:98px"><b>音声ガイダンス</b><small id="voiceVolumeLabel" style="display:block;color:#94a9b8">音量 100%</small></div><input id="voiceVolume" type="range" min="0" max="100" step="5" value="100" oninput="setVoiceVolume(this.value)"></div>
+    <div class="voice-enable-setting">
+      <div><b>🔊 音声案内</b><small>ナビ中の読み上げ</small></div>
+      <button id="voiceEnableBtn" onclick="setVoiceGuideEnabled(!voiceGuideEnabled)">ON</button>
+    </div>
+    <div class="voice-timing-setting">
+      <div class="voice-timing-title"><span>⏱</span><div><b>音声案内のタイミング</b><small>曲がり角の案内距離</small></div></div>
+      <div class="voice-timing-seg">
+        <button id="voiceTimingEarly" onclick="setVoiceTiming('early')">早め</button>
+        <button id="voiceTimingStandard" onclick="setVoiceTiming('standard')">標準</button>
+        <button id="voiceTimingLate" onclick="setVoiceTiming('late')">直前</button>
+      </div>
+    </div>
     <button onclick="togglePitch()"><span>◆</span><div><b>地図表示</b><small>2D / 3D を切替</small></div><i>›</i></button>
     <button onclick="exportData()"><span>⇧</span><div><b>バックアップを書き出す</b><small>配達先・実績・設定をJSONで保存</small></div><i>›</i></button>
     <button onclick="document.getElementById('restoreInput').click()"><span>⇩</span><div><b>バックアップを復元</b><small>JSONファイルから復元</small></div><i>›</i></button>
@@ -607,14 +713,14 @@ body.main-active>.app>.topbar{min-height:calc(48px + env(safe-area-inset-top))!i
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v46 Clear Route On Stop</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist FINAL v54 All In One</div>
   </div>
 </section>
 
 </div>
 <div id="autoNextToast" class="auto-next-toast"></div>
 <script>
-const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1';
+const KEY='flexStopsV3'; const SEL='flexSelectedV3'; const METRICS='flexMetricsV1'; const ADMIN_URL='flexAdminSyncUrlV1'; const MAP_THEME_KEY='flexMapThemeV1'; const VOICE_VOL_KEY='flexVoiceVolumeV1'; const VOICE_TIMING_KEY='flexVoiceTimingV1'; const VOICE_ENABLED_KEY='flexVoiceEnabledV1'; const ROUTE_MODE_KEY='flexRouteModeV1'; const VEHICLE_KEY='flexVehicleTypeV1'; const NAV_STATE_KEY='flexNavStateV1';
 const MAP_STYLES={dark:'https://tiles.openfreemap.org/styles/liberty',light:'https://tiles.openfreemap.org/styles/positron'};
 let mapTheme=localStorage.getItem(MAP_THEME_KEY)||'light'; if(!MAP_STYLES[mapTheme])mapTheme='light';
 // v34: 明るめのブルーグレー・ナイトモード。建物・道路・地名を見失わない配色にする。
@@ -634,7 +740,7 @@ function applyNightPalette(){
     else if(layer.type==='raster'){safe(layer.id,'raster-opacity',0.82);safe(layer.id,'raster-brightness-min',0.18);safe(layer.id,'raster-brightness-max',0.88);safe(layer.id,'raster-saturation',-0.25);}
   }
 }
-let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false,navigationSteps=[],navigationStepIndex=0,lastSpokenStep=-1,lastVoiceAt=0,lastRerouteAt=0,navigationRouteCoords=[],arrivalAnnounced=false,voiceVolume=Math.max(0,Math.min(1,Number(localStorage.getItem(VOICE_VOL_KEY)??1))),routeMode=localStorage.getItem(ROUTE_MODE_KEY)||'general',vehicleType=localStorage.getItem(VEHICLE_KEY)||'kei',currentRouteDuration=0,currentRouteDistance=0,mapDraftPoint=null,wakeLock=null,routeAlternatives=[],selectedRouteIndex=0,voiceGuideEnabled=true,routeGeneration=0;
+let stops=loadStops(); let selectedId=localStorage.getItem(SEL)||null; let metrics=loadMetrics(); let currentMode='undelivered',pitched=false,userPos=null,markers=[],userMarker=null,watchId=null,currentView='mainView',viewStack=[],followMode=true,hasInitialFix=false,routePreviewActive=false,routeReady=false,navigationActive=false,navigationTargetId=null,sheetExpanded=false,correctionMarker=null,correctionMode=false,navigationSteps=[],navigationStepIndex=0,lastSpokenStep=-1,lastVoiceAt=0,lastRerouteAt=0,navigationRouteCoords=[],arrivalAnnounced=false,voiceVolume=Math.max(0,Math.min(1,Number(localStorage.getItem(VOICE_VOL_KEY)??1))),voiceTiming=localStorage.getItem(VOICE_TIMING_KEY)||'standard',routeMode=localStorage.getItem(ROUTE_MODE_KEY)||'general',vehicleType=localStorage.getItem(VEHICLE_KEY)||'kei',currentRouteDuration=0,currentRouteDistance=0,mapDraftPoint=null,wakeLock=null,routeAlternatives=[],selectedRouteIndex=0,voiceGuideEnabled=localStorage.getItem(VOICE_ENABLED_KEY)!=='0',routeGeneration=0;
 function loadStops(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
 function loadMetrics(){try{return JSON.parse(localStorage.getItem(METRICS)||'{}')}catch{return {}}}
 function saveMetrics(){localStorage.setItem(METRICS,JSON.stringify(metrics))}
@@ -927,7 +1033,32 @@ function saveDetail(){const s=stops.find(x=>x.id===selectedId);if(!s)return;s.dr
 function savePoint(type){const s=stops.find(x=>x.id===selectedId);if(!s)return;navigator.geolocation?.getCurrentPosition(p=>{s[type]={lat:p.coords.latitude,lng:p.coords.longitude};saveStops();renderDetail();alert((type==='entry'?'入口':'駐車')+'位置を保存しました')},()=>alert('現在地を取得できませんでした'),{enableHighAccuracy:true})}
 function deleteStop(id){const s=stops.find(x=>x.id===id);if(!s)return;if(!confirm(`「${s.address}」を削除しますか？`))return;stops=stops.filter(x=>x.id!==id);if(selectedId===id)selectedId=stops[0]?.id||null;localStorage.setItem(SEL,selectedId||'');saveStops();openView('listView')}
 function markDone(id){setStopStatus(id,'done')}
-function setStopStatus(id,status,autoNext=false){const s=stops.find(x=>x.id===id);if(!s)return;ensureTodayMetrics();if(status==='done'&&s.status!=='done'){metrics.completed=(metrics.completed||0)+1;const p=(userPos&&Number.isFinite(userPos.lat))?userPos:(Number.isFinite(s.lat)?{lat:s.lat,lng:s.lng}:null);if(p&&metrics.lastDonePos){metrics.distanceKm=(metrics.distanceKm||0)+hav(metrics.lastDonePos,p)}if(p)metrics.lastDonePos={lat:p.lat,lng:p.lng};}if(status==='absent'&&s.status!=='absent')metrics.absent=(metrics.absent||0)+1;s.status=status;s.statusUpdatedAt=Date.now();saveMetrics();saveStops();renderDetail();renderList();renderOverview();renderPerformance();if(autoNext){const next=findNextOperationalStop();if(next){selectedId=next.id;localStorage.setItem(SEL,next.id);showAutoNextToast(status==='done'?'完了。次の目的地を表示します':'不在に登録。次の目的地を表示します');selectStop(next.id,true);openView('mainView',false);previewShortestRoute().catch(()=>{});}else{showAutoNextToast('本日の配達対象はありません');openView('overviewView',false);}}}
+function setStopStatus(id,status,autoNext=false){
+  const s=stops.find(x=>x.id===id);if(!s)return;
+  ensureTodayMetrics();
+  if(status==='done'&&s.status!=='done'){
+    metrics.completed=(metrics.completed||0)+1;
+    const p=(userPos&&Number.isFinite(userPos.lat))?userPos:(Number.isFinite(s.lat)?{lat:s.lat,lng:s.lng}:null);
+    if(p&&metrics.lastDonePos)metrics.distanceKm=(metrics.distanceKm||0)+hav(metrics.lastDonePos,p);
+    if(p)metrics.lastDonePos={lat:p.lat,lng:p.lng};
+  }
+  if(status==='absent'&&s.status!=='absent')metrics.absent=(metrics.absent||0)+1;
+  s.status=status;s.statusUpdatedAt=Date.now();
+  saveMetrics();saveStops();renderDetail();renderList();renderOverview();renderPerformance();drawMarkers();
+  if(autoNext){
+    clearRouteLine();routePreviewActive=false;routeReady=false;routeAlternatives=[];selectedRouteIndex=0;
+    const next=findNextOperationalStop();
+    if(next){
+      selectedId=next.id;localStorage.setItem(SEL,next.id);
+      showAutoNextToast(status==='done'?'配達完了。次の目的地を検索します':'不在に登録。次の目的地を検索します');
+      selectStop(next.id,true);openView('mainView',false);
+      setTimeout(()=>previewShortestRoute().catch(()=>{}),120);
+    }else{
+      showAutoNextToast('本日の配達はすべて処理済みです');
+      openView('overviewView',false);
+    }
+  }
+}
 function showAutoNextToast(msg){const e=document.getElementById('autoNextToast');if(!e)return;e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',2200)}
 function appendQuickMemo(text){const e=document.getElementById('memo');if(!e)return;const cur=e.value.trim();e.value=cur?cur+' / '+text:text}
 function saveProofPhoto(ev,id){const f=ev.target.files?.[0];if(!f)return;const img=new Image(),r=new FileReader();r.onload=()=>{img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);const s=stops.find(x=>x.id===id);if(s){s.proofPhoto=c.toDataURL('image/jpeg',.72);saveStops();renderDetail();}};img.src=r.result};r.readAsDataURL(f)}
@@ -1059,6 +1190,19 @@ function setVoiceVolume(v){
   localStorage.setItem(VOICE_VOL_KEY,String(voiceVolume));
   const lab=document.getElementById('voiceVolumeLabel');if(lab)lab.textContent=`音量 ${Math.round(voiceVolume*100)}%`;
 }
+function setVoiceTiming(mode){
+  voiceTiming=['early','standard','late'].includes(mode)?mode:'standard';
+  localStorage.setItem(VOICE_TIMING_KEY,voiceTiming);
+  ['early','standard','late'].forEach(x=>{
+    const id=x==='early'?'voiceTimingEarly':x==='standard'?'voiceTimingStandard':'voiceTimingLate';
+    document.getElementById(id)?.classList.toggle('active',voiceTiming===x);
+  });
+}
+function voiceTimingThresholds(){
+  if(voiceTiming==='early')return {far:420,near:150};
+  if(voiceTiming==='late')return {far:170,near:65};
+  return {far:260,near:95};
+}
 function setRouteMode(mode){
   routeMode=mode==='highway'?'highway':'general';localStorage.setItem(ROUTE_MODE_KEY,routeMode);
   document.getElementById('routeGeneralBtn')?.classList.toggle('active',routeMode==='general');
@@ -1143,11 +1287,19 @@ function selectAlternativeRoute(i){
   document.getElementById('routeStats').textContent=`${Math.max(1,Math.round(currentRouteDuration/60))} 分・${formatKm(currentRouteDistance)}`;
   updateEta(currentRouteDuration);updateTollEstimate();renderAlternativeCards();drawAllRoutes();updateRoutePrimaryButton();
 }
-function toggleVoiceGuide(){
-  voiceGuideEnabled=!voiceGuideEnabled;
-  const b=document.getElementById('navVoiceToggle');if(b)b.textContent=voiceGuideEnabled?'🔊':'🔇';
+function setVoiceGuideEnabled(on){
+  voiceGuideEnabled=!!on;
+  localStorage.setItem(VOICE_ENABLED_KEY,voiceGuideEnabled?'1':'0');
+  const navBtn=document.getElementById('navVoiceToggle');
+  if(navBtn)navBtn.textContent=voiceGuideEnabled?'🔊':'🔇';
+  const settingsBtn=document.getElementById('voiceEnableBtn');
+  if(settingsBtn){
+    settingsBtn.textContent=voiceGuideEnabled?'ON':'OFF';
+    settingsBtn.classList.toggle('off',!voiceGuideEnabled);
+  }
   if(!voiceGuideEnabled){try{speechSynthesis.cancel()}catch(e){}}
 }
+function toggleVoiceGuide(){setVoiceGuideEnabled(!voiceGuideEnabled)}
 function updateNavChrome(step,distanceMetersToStep){
   const text=navInstruction(step)||'直進です';
   const m=step?.maneuver||{},mod=String(m.modifier||'');
@@ -1260,7 +1412,7 @@ function distanceToRoute(pos){
   }
   return min;
 }
-async function refreshNavigationRoute(){
+async function refreshNavigationRoute(manual=false){
   const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
   if(!navigationActive||!userPos||!target||!Number.isFinite(target.lat)||!Number.isFinite(target.lng))return;
   const myGeneration=routeGeneration;
@@ -1279,16 +1431,83 @@ async function refreshNavigationRoute(){
     speakNavigation('ルートを再検索しました',true);
   }catch(e){}
 }
+
+function showArrivalPanel(target){
+  if(!target)return;
+  const panel=document.getElementById('arrivalPanel');
+  const addr=document.getElementById('arrivalAddress');
+  const pkg=document.getElementById('arrivalPackageInfo');
+  if(addr)addr.textContent=formatJapaneseAddress(target.address||'');
+  if(pkg){
+    const options=[
+      target.dropoff?'置き配':'',
+      target.locker?'宅配ボックス':'',
+      target.autolock?'オートロック':''
+    ].filter(Boolean).join(' / ')||'指定なし';
+    pkg.innerHTML=`
+      ${target.name?`<div class="arrival-info-row"><span>建物・部屋</span><span>${esc(target.name)}</span></div>`:''}
+      <div class="arrival-info-row"><span>荷物</span><span>${Math.max(1,Number(target.packageCount||1))}個</span></div>
+      <div class="arrival-info-row"><span>時間指定</span><span>${esc(target.timeSlot&&target.timeSlot!=='なし'?target.timeSlot:'指定なし')}</span></div>
+      <div class="arrival-info-row"><span>配達条件</span><span>${esc(options)}</span></div>
+      ${target.memo?`<div class="arrival-memo">📝 ${esc(target.memo)}</div>`:''}
+    `;
+  }
+  panel?.classList.add('show');
+  document.getElementById('mainView')?.classList.add('arrival-active');
+}
+function hideArrivalPanel(){
+  document.getElementById('arrivalPanel')?.classList.remove('show');
+  document.getElementById('mainView')?.classList.remove('arrival-active');
+}
+function finishCurrentDelivery(status){
+  const id=navigationTargetId||selectedId;
+  if(!id)return;
+  hideArrivalPanel();
+  stopNavigation(false);
+  setStopStatus(id,status,true);
+}
+
+
+let gpsAccuracyWarningVisible=false;
+function updateGpsAccuracyWarning(pos){
+  const box=document.getElementById('gpsAccuracyWarning');
+  const text=document.getElementById('gpsAccuracyText');
+  if(!box||!text)return;
+
+  const acc=Number(pos?.accuracy);
+  if(!Number.isFinite(acc)){
+    box.classList.remove('show');
+    gpsAccuracyWarningVisible=false;
+    return;
+  }
+
+  // 35m超を「精度低下」と判定。ナビ中・通常地図の両方で表示する。
+  if(acc>35){
+    text.textContent=`現在の精度：約${Math.round(acc)}m`;
+    box.classList.add('show');
+    gpsAccuracyWarningVisible=true;
+  }else{
+    box.classList.remove('show');
+    gpsAccuracyWarningVisible=false;
+  }
+}
+
 function handleNavigationProgress(pos,target){
+  updateGpsAccuracyWarning(pos);
   if(!navigationActive||!pos||!target)return;
   const remain=distanceMeters(pos,target);
   currentRouteDistance=remain;
   const stats=document.getElementById('routeStats');
   if(stats)stats.textContent=remain<1000?`目的地まで 約${Math.max(1,Math.round(remain))} m`:`目的地まで 約${(remain/1000).toFixed(1)} km`;
 
-  if(remain<30&&!arrivalAnnounced){
-    arrivalAnnounced=true;
-    speakNavigation('目的地付近です',true);
+  if(remain<10){
+    showArrivalPanel(target);
+    if(!arrivalAnnounced){
+      arrivalAnnounced=true;
+      speakNavigation('目的地に到着しました。配達完了または不在を選択してください',true);
+    }
+  }else{
+    hideArrivalPanel();
   }
 
   if(navigationSteps.length){
@@ -1302,9 +1521,10 @@ function handleNavigationProgress(pos,target){
     updateNavChrome(step,d);
     const instruction=navInstruction(step);
     if(instruction){
-      if(d<95&&lastSpokenStep!==idx){
+      const vt=voiceTimingThresholds();
+      if(d<vt.near&&lastSpokenStep!==idx){
         speakNavigation(`まもなく、${instruction}`,true);lastSpokenStep=idx;
-      }else if(d<260&&lastSpokenStep!==idx&&Date.now()-lastVoiceAt>12000){
+      }else if(d<vt.far&&lastSpokenStep!==idx&&Date.now()-lastVoiceAt>12000){
         speakNavigation(`${Math.max(50,Math.round(d/50)*50)}メートル先、${instruction}`);lastSpokenStep=idx;
       }
     }
@@ -1316,7 +1536,8 @@ function startNavigation(){
   const target=stops.find(x=>x.id===navigationTargetId||x.id===selectedId);
   if(!target||!routeReady){routeReady=false;updateRoutePrimaryButton();return}
   routeGeneration++;
-  navigationActive=true;followMode=true;sheetExpanded=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;saveNavState();requestNavWakeLock();
+  hideArrivalPanel();
+  navigationActive=true;followMode=true;sheetExpanded=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;setVoiceGuideEnabled(voiceGuideEnabled);saveNavState();requestNavWakeLock();
   document.getElementById('mainView')?.classList.remove('preview-mode');
   document.getElementById('mainView')?.classList.add('navigation-mode');
   toggleRouteSheet(false);updateRoutePrimaryButton();
@@ -1331,7 +1552,23 @@ function startNavigation(){
     map.easeTo({center:[userPos.lng,userPos.lat],bearing:targetBearing,zoom:18.2,pitch:48,duration:500});
   }
 }
+
+async function manualReroute(){
+  if(!navigationActive)return;
+  const btn=document.getElementById('navRerouteBtn');
+  if(btn){btn.disabled=true;btn.textContent='検索中…';}
+  try{
+    await refreshNavigationRoute(true);
+    showAutoNextToast('現在地からルートを再検索しました');
+  }catch(e){
+    showAutoNextToast('ルートを再検索できませんでした');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='↻ 再検索';}
+  }
+}
+
 function stopNavigation(speak=true){
+  hideArrivalPanel();
   routeGeneration++;
   navigationActive=false;followMode=false;arrivalAnnounced=false;navigationStepIndex=0;lastSpokenStep=-1;
   routePreviewActive=false;routeReady=false;navigationTargetId=null;
@@ -1409,7 +1646,7 @@ async function addStopFromPhoto(){const address=formatJapaneseAddress(ocrAddress
 async function addManualAddress(){const a=(document.getElementById('manualAddress')?.value||'').trim();const b=(document.getElementById('manualBuilding')?.value||'').trim();const st=document.getElementById('manualGeoStatus');if(!a){alert('住所を入力してください');return}if(st){st.style.color='#8fb4c8';st.textContent='住所を地図上で確認しています…'}const pos=await geocode(a);if(!pos){if(st){st.style.color='#ffb4ab';st.textContent='位置を取得できません。番地まで確認してもう一度登録してください。'}return}const s={id:uid(),address:formatJapaneseAddress(a),name:b,memo:'',dropoff:false,locker:false,autolock:false,status:'undelivered',timeSlot:manualTimeSlot,lat:pos.lat,lng:pos.lng,entry:null,parking:null,packageCount:Math.max(1,Number(document.getElementById('manualPackageCount')?.value||1))};if(mergeIfDuplicate(s)){rememberAddress(a);if(st)st.textContent='同じ住所の荷物にまとめました。';openView('mainView',false);return}stops.push(s);selectedId=s.id;localStorage.setItem(SEL,s.id);saveStops();rememberAddress(a);updateAll();if(st){st.style.color='#8ee5b4';st.textContent='住所を登録しました。地図上に表示します。'}map.easeTo({center:[pos.lng,pos.lat],zoom:18,duration:500});setTimeout(()=>openView('mainView',false),180)}
 function renderPerformance(){ensureTodayMetrics();const total=stops.length,done=stops.filter(s=>s.status==='done').length,absent=stops.filter(s=>s.status==='absent').length,pending=total-done-absent,packages=stops.reduce((n,s)=>n+Number(s.packageCount||1),0),rate=total?Math.round(done/total*100):0;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('perfDone',done+'件');set('perfAbsent',absent+'件');set('perfPending',pending+'件');set('perfPackages',packages+'個');set('perfStops',total+'件');set('perfRate',rate+'%');set('perfDistance',(Number(metrics.distanceKm||0)).toFixed(1)+' km');set('perfNotice',total?`完了 ${done}件・不在 ${absent}件・未配達 ${pending}件です。`:'配達先を登録すると集計されます。');}
 function setPerfPeriod(period,btn){document.querySelectorAll('.perf-tabs button').forEach(b=>b.classList.remove('active'));btn?.classList.add('active');document.getElementById('perfTitle').textContent=period==='day'?'本日の実績':period==='week'?'今週の実績':'今月の実績';renderPerformance()}
-function renderSettings(){const u=document.getElementById('adminSyncUrl');if(u)u.value=localStorage.getItem(ADMIN_URL)||'';updateMapThemeButtons();const vv=document.getElementById('voiceVolume');if(vv)vv.value=Math.round(voiceVolume*100);const lab=document.getElementById('voiceVolumeLabel');if(lab)lab.textContent=`音量 ${Math.round(voiceVolume*100)}%`;setRouteMode(routeMode);setVehicleType(vehicleType)}
+function renderSettings(){const u=document.getElementById('adminSyncUrl');if(u)u.value=localStorage.getItem(ADMIN_URL)||'';updateMapThemeButtons();const vv=document.getElementById('voiceVolume');if(vv)vv.value=Math.round(voiceVolume*100);const lab=document.getElementById('voiceVolumeLabel');if(lab)lab.textContent=`音量 ${Math.round(voiceVolume*100)}%`;setVoiceTiming(voiceTiming);setVoiceGuideEnabled(voiceGuideEnabled);setRouteMode(routeMode);setVehicleType(vehicleType)}
 function exportData(){const data={version:30,exportedAt:new Date().toISOString(),stops,metrics,headingAnchorIndex,favorites:getArr(FAV),history:getArr(HIST),adminUrl:localStorage.getItem(ADMIN_URL)||''};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='flex-route-assist-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 async function restoreData(ev){const f=ev.target.files?.[0];if(!f)return;if(!confirm('現在のデータをバックアップ内容で置き換えますか？')){ev.target.value='';return}try{const j=JSON.parse(await f.text());const arr=Array.isArray(j)?j:j.stops;if(!Array.isArray(arr))throw new Error('invalid');stops=arr;metrics=j.metrics||metrics;if(Array.isArray(j.favorites))setArr(FAV,j.favorites);if(Array.isArray(j.history))setArr(HIST,j.history);if(j.adminUrl)localStorage.setItem(ADMIN_URL,j.adminUrl);saveMetrics();saveStops();alert('バックアップを復元しました');openView('overviewView',false)}catch{alert('バックアップファイルを読み込めませんでした')}finally{ev.target.value=''}}
 function parseCsvLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out}
