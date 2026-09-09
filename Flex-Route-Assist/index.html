@@ -770,6 +770,20 @@ body.history-open .menu-overlay{
   margin-top:3px;
 }
 
+
+/* v62 redelivery */
+.history-redelivery-btn{
+  width:100%;
+  margin-top:9px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid #2e9fc9;
+  background:#102733;
+  color:#8edfff;
+  font-weight:900;
+  font-size:12px;
+}
+
 </style>
 </head>
 <body class="main-active">
@@ -938,7 +952,7 @@ body.history-open .menu-overlay{
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v60 Monthly Summary</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v62 Redelivery</div>
   </div>
 </section>
 
@@ -1294,6 +1308,33 @@ function recordDeliveryHistory(stop,status){
   });
   saveDeliveryHistory(rows);
 }
+
+function restoreForRedelivery(stopId,historyId){
+  const stop=stops.find(x=>String(x.id)===String(stopId));
+  if(!stop){
+    showAutoNextToast('元の配達先が見つかりません');
+    return;
+  }
+
+  stop.status='pending';
+  stop.statusUpdatedAt=Date.now();
+
+  const rows=getDeliveryHistory().filter(x=>String(x.id)!==String(historyId));
+  saveDeliveryHistory(rows);
+  saveStops();
+
+  drawMarkers();
+  renderList();
+  renderOverview();
+  renderPerformance();
+  renderDeliveryHistory();
+  renderMonthlyHistorySummary();
+
+  selectedId=stop.id;
+  localStorage.setItem(SEL,stop.id);
+  showAutoNextToast('再配達に戻しました');
+}
+
 function setHistoryToday(){
   const d=new Date(),v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const i=document.getElementById('historyDate');if(i)i.value=v;
@@ -1322,6 +1363,7 @@ function renderDeliveryHistory(){
       <div class="history-item-top"><span class="history-status ${x.status}">${x.status==='done'?'配達完了':'不在'}</span><strong>${tm}</strong></div>
       <div class="history-address">${esc(x.address||'住所なし')}</div>
       <div class="history-meta">${x.name?esc(x.name)+' ・ ':''}荷物 ${Number(x.packageCount||1)}個${x.timeSlot&&x.timeSlot!=='なし'?' ・ '+esc(x.timeSlot):''}</div>
+      ${x.status==='absent'?`<button class="history-redelivery-btn" onclick="restoreForRedelivery('${x.stopId}','${x.id}')">↻ 再配達に戻す</button>`:''}
     </div>`;
   }).join('');
 }
