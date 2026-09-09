@@ -704,6 +704,72 @@ body.history-open .menu-overlay{
   display:none!important;
 }
 
+
+/* v60 monthly delivery summary */
+.history-month-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 78px;
+  gap:8px;
+  padding:0 12px 10px;
+}
+.history-month-toolbar input{
+  width:100%;
+  min-width:0;
+  height:42px;
+  box-sizing:border-box;
+  background:#0c1a24;
+  color:#fff;
+  border:1px solid #294557;
+  border-radius:10px;
+  padding:0 10px;
+  font-size:15px;
+}
+.history-month-toolbar button{
+  height:42px;
+  border:1px solid #2d91b8;
+  background:#0d2633;
+  color:#8edfff;
+  border-radius:10px;
+  font-weight:800;
+}
+.history-monthly-summary{
+  margin:0 12px 12px;
+  padding:12px;
+  background:#091721;
+  border:1px solid #274657;
+  border-radius:13px;
+  color:#fff;
+}
+.history-monthly-title{
+  font-size:12px;
+  color:#8fa7b6;
+  margin-bottom:9px;
+}
+.history-monthly-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+}
+.history-monthly-card{
+  min-width:0;
+  background:#10222d;
+  border:1px solid #244150;
+  border-radius:10px;
+  padding:9px 4px;
+  text-align:center;
+}
+.history-monthly-card span{
+  display:block;
+  color:#91a9b8;
+  font-size:9px;
+  white-space:nowrap;
+}
+.history-monthly-card strong{
+  display:block;
+  font-size:18px;
+  margin-top:3px;
+}
+
 </style>
 </head>
 <body class="main-active">
@@ -872,7 +938,7 @@ body.history-open .menu-overlay{
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v59 Pin Delete Voice Longpress</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v60 Monthly Summary</div>
   </div>
 </section>
 
@@ -1200,6 +1266,7 @@ function openHistoryView(){
   document.body.classList.add('history-open');
   openView('historyView',true);
   renderDeliveryHistory();
+  renderMonthlyHistorySummary();
   drawMarkers();
   if(!stops.some(x=>x.id===selectedId)){selectedId=null;localStorage.removeItem(SEL);clearRouteLine();}
 }
@@ -1259,6 +1326,38 @@ function renderDeliveryHistory(){
   }).join('');
 }
 
+
+
+function setHistoryThisMonth(){
+  const d=new Date();
+  const v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  const i=document.getElementById('historyMonth');
+  if(i)i.value=v;
+  renderMonthlyHistorySummary();
+}
+function renderMonthlyHistorySummary(){
+  const i=document.getElementById('historyMonth');
+  if(i&&!i.value){
+    const d=new Date();
+    i.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  const month=i?.value||'';
+  const rows=getDeliveryHistory().filter(x=>String(x.localDate||'').startsWith(month));
+  const done=rows.filter(x=>x.status==='done').length;
+  const absent=rows.filter(x=>x.status==='absent').length;
+  const packages=rows.reduce((n,x)=>n+Number(x.packageCount||0),0);
+  const activeDays=new Set(rows.map(x=>x.localDate)).size;
+  const box=document.getElementById('historyMonthlySummary');
+  if(!box)return;
+  box.innerHTML=`
+    <div class="history-monthly-title">${month||'—'} 月間集計</div>
+    <div class="history-monthly-grid">
+      <div class="history-monthly-card"><span>配達完了</span><strong>${done}</strong></div>
+      <div class="history-monthly-card"><span>不在</span><strong>${absent}</strong></div>
+      <div class="history-monthly-card"><span>荷物数</span><strong>${packages}</strong></div>
+      <div class="history-monthly-card"><span>稼働日</span><strong>${activeDays}</strong></div>
+    </div>`;
+}
 
 function exportDeliveryHistoryCsv(){
   const input=document.getElementById('historyDate');
@@ -1988,6 +2087,13 @@ try{
     <button onclick="setHistoryToday()">今日</button>
     <button onclick="exportDeliveryHistoryCsv()">CSV</button>
   </div>
+
+  <div class="history-month-toolbar">
+    <input id="historyMonth" type="month" onchange="renderMonthlyHistorySummary()">
+    <button onclick="setHistoryThisMonth()">今月</button>
+  </div>
+
+  <div id="historyMonthlySummary" class="history-monthly-summary"></div>
   <div id="historySummary" class="history-summary"></div>
   <div id="historyList" class="history-list"></div>
 </section>
