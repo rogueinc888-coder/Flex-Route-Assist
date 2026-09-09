@@ -784,6 +784,20 @@ body.history-open .menu-overlay{
   font-size:12px;
 }
 
+
+/* v64 history map open */
+.history-map-btn{
+  width:100%;
+  margin-top:9px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid #315468;
+  background:#0b1f2a;
+  color:#d9edf6;
+  font-weight:900;
+  font-size:12px;
+}
+
 </style>
 </head>
 <body class="main-active">
@@ -952,7 +966,7 @@ body.history-open .menu-overlay{
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v63 Undo Complete</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v64 History Open Map</div>
   </div>
 </section>
 
@@ -1310,6 +1324,28 @@ function recordDeliveryHistory(stop,status){
 }
 
 
+
+function openHistoryStopOnMap(stopId){
+  const stop=stops.find(x=>String(x.id)===String(stopId));
+  if(!stop){
+    showAutoNextToast('元の配達先が見つかりません');
+    return;
+  }
+  selectedId=stop.id;
+  localStorage.setItem(SEL,stop.id);
+  document.body.classList.remove('history-open');
+  openView('mainView',false);
+
+  setTimeout(()=>{
+    try{
+      if(map&&Number.isFinite(stop.lng)&&Number.isFinite(stop.lat)){
+        map.easeTo({center:[stop.lng,stop.lat],zoom:18,duration:500});
+      }
+      selectStop(stop.id,true);
+    }catch(e){}
+  },80);
+}
+
 function undoCompletedDelivery(stopId,historyId){
   const stop=stops.find(x=>String(x.id)===String(stopId));
   if(!stop){
@@ -1394,6 +1430,7 @@ function renderDeliveryHistory(){
       <div class="history-item-top"><span class="history-status ${x.status}">${x.status==='done'?'配達完了':'不在'}</span><strong>${tm}</strong></div>
       <div class="history-address">${esc(x.address||'住所なし')}</div>
       <div class="history-meta">${x.name?esc(x.name)+' ・ ':''}荷物 ${Number(x.packageCount||1)}個${x.timeSlot&&x.timeSlot!=='なし'?' ・ '+esc(x.timeSlot):''}</div>
+      <button class="history-map-btn" onclick="openHistoryStopOnMap('${x.stopId}')">📍 地図で開く</button>
       ${x.status==='absent'?`<button class="history-redelivery-btn" onclick="restoreForRedelivery('${x.stopId}','${x.id}')">↻ 再配達に戻す</button>`:''}
       ${x.status==='done'?`<button class="history-redelivery-btn" onclick="undoCompletedDelivery('${x.stopId}','${x.id}')">↶ 完了を取り消す</button>`:''}
     </div>`;
