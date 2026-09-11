@@ -798,6 +798,65 @@ body.history-open .menu-overlay{
   font-size:12px;
 }
 
+
+/* v65 history status filter */
+.history-filter{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  padding:0 12px 10px;
+}
+.history-filter button{
+  height:36px;
+  border-radius:10px;
+  border:1px solid #294557;
+  background:#0d202a;
+  color:#9bb0bd;
+  font-weight:800;
+  font-size:12px;
+}
+.history-filter button.active{
+  background:#0d8fc8;
+  border-color:#35bde9;
+  color:#fff;
+}
+
+
+/* v66 history search */
+.history-search{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 42px;
+  gap:8px;
+  padding:0 12px 10px;
+}
+.history-search input{
+  width:100%;
+  min-width:0;
+  height:40px;
+  box-sizing:border-box;
+  background:#0c1a24;
+  color:#fff;
+  border:1px solid #294557;
+  border-radius:10px;
+  padding:0 11px;
+  font-size:14px;
+}
+.history-search input::placeholder{color:#748b99}
+.history-search button{
+  height:40px;
+  border-radius:10px;
+  border:1px solid #294557;
+  background:#10232e;
+  color:#b8ccd7;
+  font-size:18px;
+}
+
+
+/* v67 list sort */
+.delivery-sort{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px 12px 0}
+.delivery-sort button{height:34px;border-radius:9px;border:1px solid #294557;background:#0d202a;color:#9bb0bd;font-weight:800;font-size:11px}
+.delivery-sort button.active{background:#0d8fc8;border-color:#35bde9;color:#fff}
+
 </style>
 </head>
 <body class="main-active">
@@ -915,7 +974,12 @@ body.history-open .menu-overlay{
   <div class="ref-head"><button class="ref-x" onclick="openView('mainView',false)">×</button><h2>今日のルート</h2><span class="head-spacer"></span></div>
   <div class="list-meta"><span class="date-pill">▣ <span id="listUpdated">更新日時</span></span></div>
   <div class="list-tabs"><button id="tabUndelivered" class="list-tab active" onclick="setListMode('undelivered')">配達 <span id="countUndelivered">0件</span></button><button id="tabAbsent" class="list-tab" onclick="setListMode('absent')">不在 <span id="countAbsent">0件</span></button><button id="tabDone" class="list-tab" onclick="setListMode('done')">完了 <span id="countDone">0件</span></button></div>
-  <div class="time-filter"><div class="time-labels"><span>AM</span><span>12</span><span>14</span><span>16</span><span>18</span><span>19</span><span>20</span><span>21</span></div><div class="time-line"><span class="time-dot left"></span><span class="time-dot right"></span></div></div>
+  <div class="delivery-sort">
+  <button id="sortRegisteredBtn" class="active" onclick="setDeliverySort('registered')">登録順</button>
+  <button id="sortNearestBtn" onclick="setDeliverySort('nearest')">近い順</button>
+  <button id="sortTimeBtn" onclick="setDeliverySort('time')">時間指定順</button>
+</div>
+<div class="time-filter"><div class="time-labels"><span>AM</span><span>12</span><span>14</span><span>16</span><span>18</span><span>19</span><span>20</span><span>21</span></div><div class="time-line"><span class="time-dot left"></span><span class="time-dot right"></span></div></div>
   <div id="stopList" class="ref-list-body"></div>
   <button class="sort-float" onclick="optimizeRoute()">⇅ 住所順</button>
 </section>
@@ -966,7 +1030,7 @@ body.history-open .menu-overlay{
     <input id="restoreInput" class="settings-file" type="file" accept="application/json,.json" onchange="restoreData(event)">
     <input id="csvInput" class="settings-file" type="file" accept="text/csv,.csv" onchange="importCsv(event)">
     <button class="danger-setting" onclick="clearAllStops()"><span>⌫</span><div><b>配達データを全削除</b><small>確認後に削除します</small></div><i>›</i></button>
-    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v64 History Open Map</div>
+    <div class="admin-config"><b>管理画面連携URL</b><input id="adminSyncUrl" placeholder="https://.../api/delivery-sync"><button onclick="saveAdminSyncUrl()">連携URLを保存</button></div><div class="csv-help">CSV例：住所,建物名,荷物個数,時間帯,メモ,置き配</div><div class="app-version">Flex Route Assist v67 List Sort</div>
   </div>
 </section>
 
@@ -1293,7 +1357,7 @@ function openHistoryView(){
   try{closeMenu()}catch(e){}
   document.body.classList.add('history-open');
   openView('historyView',true);
-  renderDeliveryHistory();
+  setHistoryFilter(historyStatusFilter||'all');
   renderMonthlyHistorySummary();
   drawMarkers();
   if(!stops.some(x=>x.id===selectedId)){selectedId=null;localStorage.removeItem(SEL);clearRouteLine();}
@@ -1301,6 +1365,25 @@ function openHistoryView(){
 function closeHistoryView(){
   document.body.classList.remove('history-open');
   goBackView();
+}
+
+
+let historyStatusFilter='all';
+
+function setHistoryFilter(mode){
+  historyStatusFilter=['all','done','absent'].includes(mode)?mode:'all';
+  const ids={all:'historyFilterAll',done:'historyFilterDone',absent:'historyFilterAbsent'};
+  Object.entries(ids).forEach(([key,id])=>{
+    document.getElementById(id)?.classList.toggle('active',historyStatusFilter===key);
+  });
+  renderDeliveryHistory();
+}
+
+
+function clearHistorySearch(){
+  const i=document.getElementById('historySearchInput');
+  if(i)i.value='';
+  renderDeliveryHistory();
 }
 
 function getDeliveryHistory(){
@@ -1413,7 +1496,16 @@ function renderDeliveryHistory(){
     const d=new Date();i.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
   const date=i?.value||'';
-  const rows=getDeliveryHistory().filter(x=>x.localDate===date).sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+  const keyword=(document.getElementById('historySearchInput')?.value||'').trim().toLowerCase();
+  const rows=getDeliveryHistory()
+    .filter(x=>x.localDate===date)
+    .filter(x=>historyStatusFilter==='all'||x.status===historyStatusFilter)
+    .filter(x=>{
+      if(!keyword)return true;
+      return [x.address,x.name,x.memo,x.timeSlot]
+        .some(v=>String(v||'').toLowerCase().includes(keyword));
+    })
+    .sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
   const done=rows.filter(x=>x.status==='done').length,absent=rows.filter(x=>x.status==='absent').length;
   const packages=rows.reduce((n,x)=>n+Number(x.packageCount||0),0);
   const s=document.getElementById('historySummary');
@@ -1587,13 +1679,45 @@ function findNextOperationalStop(origin=userPos){const list=stops.filter(s=>(s.s
 function optimizeRoute(){const pending=stops.filter(s=>(s.status||'undelivered')!=='done'),done=stops.filter(s=>s.status==='done');if(pending.length<2){renderList();openView('listView');return}let cur=userPos||{lat:pending[0].lat,lng:pending[0].lng};let left=[...pending],ordered=[];while(left.length){let best=0,bestScore=Infinity;left.forEach((s,i)=>{const d=(Number.isFinite(s.lat)&&Number.isFinite(s.lng)&&Number.isFinite(cur.lat))?hav(cur,s):99999;const sc=slotPriority(s.timeSlot)*5+d+(s.status==='absent'?25:0);if(sc<bestScore){bestScore=sc;best=i}});const n=left.splice(best,1)[0];ordered.push(n);if(Number.isFinite(n.lat))cur={lat:n.lat,lng:n.lng}}stops=[...ordered,...done];saveStops();renderList();openView('listView')}
 function filterMode(m){currentMode=m;renderList()}
 function setListMode(mode){currentMode=mode;renderList()}
+
+let deliverySortMode='registered';
+
+function setDeliverySort(mode){
+  deliverySortMode=['registered','nearest','time'].includes(mode)?mode:'registered';
+  const ids={registered:'sortRegisteredBtn',nearest:'sortNearestBtn',time:'sortTimeBtn'};
+  Object.entries(ids).forEach(([key,id])=>{
+    document.getElementById(id)?.classList.toggle('active',deliverySortMode===key);
+  });
+  renderList();
+}
+
+function sortStopsForList(rows){
+  const arr=[...rows];
+
+  if(deliverySortMode==='nearest'){
+    if(!userPos||!Number.isFinite(userPos.lat)||!Number.isFinite(userPos.lng))return arr;
+    return arr.sort((a,b)=>{
+      const da=(Number.isFinite(a.lat)&&Number.isFinite(a.lng))?hav(userPos,a):999999;
+      const db=(Number.isFinite(b.lat)&&Number.isFinite(b.lng))?hav(userPos,b):999999;
+      return da-db;
+    });
+  }
+
+  if(deliverySortMode==='time'){
+    const order={'午前中':1,'12-14時':2,'14-16時':3,'16-18時':4,'18-20時':5,'19-21時':6,'20-21時':7,'なし':99};
+    return arr.sort((a,b)=>(order[a.timeSlot]??98)-(order[b.timeSlot]??98));
+  }
+
+  return arr;
+}
+
 function renderList(){
   const box=document.getElementById('stopList');if(!box)return;
   const cu=stops.filter(s=>s.status==='undelivered'||!s.status).length, ca=stops.filter(s=>s.status==='absent').length, cd=stops.filter(s=>s.status==='done').length;
   const u=document.getElementById('countUndelivered'),a=document.getElementById('countAbsent'),d=document.getElementById('countDone');if(u)u.textContent=`${cu}件`;if(a)a.textContent=`${ca}件`;if(d)d.textContent=`${cd}件`;
   ['Undelivered','Absent','Done'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('active'));const cap=currentMode.charAt(0).toUpperCase()+currentMode.slice(1);document.getElementById('tab'+cap)?.classList.add('active');
   const upd=document.getElementById('listUpdated');if(upd)upd.textContent=new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  const list=stops.filter(s=>(s.status||'undelivered')===currentMode);
+  const list=sortStopsForList(stops.filter(s=>(s.status||'undelivered')===currentMode));
   if(!list.length){box.innerHTML=`<div class="empty-package"><div class="boxicon">📦</div><div>登録されている荷物はありません<br>地図画面から、荷物を登録しましょう</div></div>`;return}
   box.innerHTML='';list.forEach(s=>{const idx=stops.indexOf(s)+1;const div=document.createElement('div');div.className='ref-stop';div.innerHTML=`<div class="num ${s.id===selectedId?'active':''}">${idx}</div><div><h3>${esc(formatJapaneseAddress(s.address))}</h3><p>${esc(s.name||'')}${s.timeSlot&&s.timeSlot!=='なし'?` ・ ${esc(s.timeSlot)}`:''}</p></div><div class="status-small">${s.status==='done'?'完了':s.status==='absent'?'不在':'配達'}${s.status==='absent'?`<button class="redelivery-btn" onclick="event.stopPropagation();setStopStatus('${s.id}','undelivered')">再配達へ</button>`:''}<button onclick="event.stopPropagation();deleteStop('${s.id}')">削除</button></div>`;div.onclick=async()=>{selectStop(s.id,true);openView('mainView',false);renderRouteSheet();toggleRouteSheet(true);await previewShortestRoute();};box.appendChild(div)});
 }
@@ -2197,6 +2321,15 @@ try{
     <input id="historyDate" type="date" onchange="renderDeliveryHistory()">
     <button onclick="setHistoryToday()">今日</button>
     <button onclick="exportDeliveryHistoryCsv()">CSV</button>
+  </div>
+  <div class="history-filter">
+    <button id="historyFilterAll" class="active" onclick="setHistoryFilter('all')">すべて</button>
+    <button id="historyFilterDone" onclick="setHistoryFilter('done')">配達完了</button>
+    <button id="historyFilterAbsent" onclick="setHistoryFilter('absent')">不在</button>
+  </div>
+  <div class="history-search">
+    <input id="historySearchInput" type="search" placeholder="住所・建物・メモを検索" oninput="renderDeliveryHistory()">
+    <button onclick="clearHistorySearch()">×</button>
   </div>
 
   <div class="history-month-toolbar">
